@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase';
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface HomeSection {
   id: string;
-  type: 'hero' | 'featured_products' | 'category_grid' | 'trust_bar' | 'banner_split' | 'instagram';
+  type: 'hero' | 'featured_products' | 'category_grid' | 'trust_bar' | 'banner_split' | 'instagram' | 'newsletter' | 'flash_sale';
   position: number;
   active: boolean;
   title?: string | null;
@@ -261,6 +261,119 @@ function BannerSplitSection({ s }: { s: HomeSection }) {
   );
 }
 
+function FlashSaleSection({ s }: { s: HomeSection }) {
+  const imageUrl = s.config?.image || s.image_url;
+  return (
+    <section className="py-24 lg:py-32 overflow-hidden" style={{ background: s.bg_color || '#000000' }}>
+      <div className="max-w-[1440px] mx-auto px-6 lg:px-16">
+        <div className="bg-secondary/5 border border-white/10 p-8 md:p-16 relative overflow-hidden group">
+          {imageUrl && (
+            <div className="absolute inset-0 opacity-40 group-hover:opacity-50 transition-opacity duration-700">
+              <img src={imageUrl} alt="Flash Sale" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
+            </div>
+          )}
+          
+          <div className="relative z-10 max-w-2xl">
+            {s.label && (
+              <span className="inline-block bg-gold text-primary px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-bold mb-6">
+                {s.label}
+              </span>
+            )}
+            <h2 className="font-serif text-white text-4xl md:text-5xl lg:text-6xl mb-6 leading-tight">
+              {s.title}
+            </h2>
+            <p className="font-sans text-white/70 text-lg mb-10 max-w-lg leading-relaxed">
+              {s.subtitle}
+            </p>
+            {s.cta_label && s.cta_url && (
+              <Link 
+                to={s.cta_url}
+                className="inline-block bg-white text-primary px-10 py-4 font-sans uppercase text-[13px] font-bold tracking-[0.15em] hover:bg-gold hover:text-white transition-all duration-300"
+              >
+                {s.cta_label}
+              </Link>
+            )}
+          </div>
+
+          {/* Decorative element */}
+          <div className="absolute top-1/2 right-10 -translate-y-1/2 hidden lg:block opacity-20 pointer-events-none">
+            <span className="font-serif text-[200px] text-white select-none">CITIZEN</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function NewsletterSection({ s }: { s: HomeSection }) {
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscriptions')
+        .insert([{ email }]);
+
+      if (error && error.code !== '23505') throw error; // Ignore error if already subscribed
+      
+      setSubscribed(true);
+      setEmail('');
+    } catch (err) {
+      console.error('Error subscribing:', err);
+      alert('Ocorreu um erro ao cadastrar seu e-mail. Tente novamente.');
+    }
+  };
+
+
+  return (
+    <section className="py-24 lg:py-32" style={{ background: s.bg_color || '#f8f8f5' }}>
+      <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-px bg-gold mb-8" />
+          {s.label && <span className="label-caps text-gold mb-4">{s.label}</span>}
+          <h2 className="font-serif text-3xl md:text-4xl mb-6">{s.title}</h2>
+          <p className="font-sans text-gray-medium text-lg mb-10 max-w-xl mx-auto">
+            {s.subtitle}
+          </p>
+
+          {!subscribed ? (
+            <form onSubmit={handleSubscribe} className="w-full max-w-md flex flex-col md:flex-row gap-4">
+              <input 
+                type="email" 
+                required
+                placeholder="Seu melhor e-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 bg-white border border-gray-light px-6 py-4 font-sans text-sm focus:border-primary outline-none transition-colors"
+              />
+              <button 
+                type="submit"
+                className="bg-primary text-secondary px-8 py-4 font-sans uppercase text-xs tracking-widest font-bold hover:bg-gold transition-colors"
+              >
+                {s.cta_label || 'Cadastrar'}
+              </button>
+            </form>
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-emerald-50 border border-emerald-100 p-6 text-emerald-800 font-sans"
+            >
+              <p className="font-bold mb-1">Inscrição confirmada! ✓</p>
+              <p className="text-sm">Seu cupom de desconto será enviado para o e-mail cadastrado.</p>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function InstagramSection({ s }: { s: HomeSection }) {
   const embedCode: string = s.config?.embedCode || '';
   const images: string[] = s.config?.images || [];
@@ -350,6 +463,8 @@ export default function Home() {
             case 'trust_bar':        return <TrustBarSection         s={section} />;
             case 'banner_split':     return <BannerSplitSection      s={section} />;
             case 'instagram':        return <InstagramSection        s={section} />;
+            case 'flash_sale':       return <FlashSaleSection        s={section} />;
+            case 'newsletter':       return <NewsletterSection       s={section} />;
             default:                 return null;
           }
         })();

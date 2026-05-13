@@ -5,7 +5,7 @@ import { Product, normalizeProduct, formatPrice, CONDITIONS } from '../data/prod
 import ImageUploader from '../components/ImageUploader';
 import {
   Plus, Pencil, Trash2, Eye, EyeOff, Loader2,
-  LogOut, Save, X, ChevronLeft, Package
+  LogOut, Save, X, ChevronLeft, Package, Layout, LayoutDashboard, Mail
 } from 'lucide-react';
 
 const ADMIN_PASSWORD = 'nathan2025';
@@ -26,7 +26,7 @@ interface SoldProduct {
 
 interface HomeSection {
   id: string;
-  type: 'hero' | 'featured_products' | 'category_grid' | 'trust_bar' | 'banner_split' | 'instagram';
+  type: 'hero' | 'featured_products' | 'category_grid' | 'trust_bar' | 'banner_split' | 'instagram' | 'newsletter' | 'flash_sale';
   position: number;
   active: boolean;
   title?: string | null;
@@ -38,6 +38,13 @@ interface HomeSection {
   bg_color?: string | null;
   config: Record<string, any>;
 }
+
+interface NewsletterSubscription {
+  id: string;
+  email: string;
+  created_at: string;
+}
+
 
 // ─── Formulário em branco ────────────────────────────────────────────────────
 const emptyForm = {
@@ -81,8 +88,10 @@ export default function Admin() {
   const [soldModal, setSoldModal] = useState<Product | null>(null);
 
   const [view, setView] = useState<'list' | 'form'>('list');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'home'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'home' | 'leads'>('dashboard');
   const [soldProducts, setSoldProducts] = useState<SoldProduct[]>([]);
+  const [newsletterSubscriptions, setNewsletterSubscriptions] = useState<NewsletterSubscription[]>([]);
+
   const [sections, setSections] = useState<HomeSection[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
@@ -129,11 +138,21 @@ export default function Admin() {
     if (data) setSections(data as HomeSection[]);
   }
 
+  async function fetchNewsletterSubscriptions() {
+    const { data } = await supabase
+      .from('newsletter_subscriptions')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (data) setNewsletterSubscriptions(data as NewsletterSubscription[]);
+  }
+
+
   useEffect(() => {
     if (authenticated) {
       fetchProducts();
       fetchSoldProducts();
       fetchSections();
+      fetchNewsletterSubscriptions();
     }
   }, [authenticated]);
 
@@ -630,6 +649,50 @@ export default function Admin() {
             products={products}
             soldProducts={soldProducts}
           />
+        ) : activeTab === 'leads' ? (
+          <div className="bg-secondary border border-gray-light">
+            <div className="p-8 border-b border-gray-light flex justify-between items-center">
+              <div>
+                <h2 className="font-serif text-2xl mb-1">Inscritos na Newsletter</h2>
+                <p className="font-sans text-xs text-gray-medium uppercase tracking-widest">
+                  {newsletterSubscriptions.length} contatos capturados
+                </p>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-offwhite border-b border-gray-light">
+                    <th className="px-8 py-4 font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-gray-medium">E-mail</th>
+                    <th className="px-8 py-4 font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-gray-medium">Data de Cadastro</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {newsletterSubscriptions.map((sub) => (
+                    <tr key={sub.id} className="border-b border-gray-light hover:bg-offwhite/50 transition-colors">
+                      <td className="px-8 py-6 font-sans text-sm font-medium">{sub.email}</td>
+                      <td className="px-8 py-6 font-sans text-xs text-gray-medium uppercase tracking-wider">
+                        {new Date(sub.created_at).toLocaleDateString('pt-BR', {
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </td>
+                    </tr>
+                  ))}
+                  {newsletterSubscriptions.length === 0 && (
+                    <tr>
+                      <td colSpan={2} className="px-8 py-12 text-center font-sans text-gray-medium italic">
+                        Nenhum inscrito ainda.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         ) : activeTab === 'home' ? (
           <HomeEditor
             sections={sections}

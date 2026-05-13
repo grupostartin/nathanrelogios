@@ -30,12 +30,17 @@ export default function ProductCard({ product }: ProductCardProps) {
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-in-out mix-blend-multiply"
           loading="lazy"
         />
-        {(product.isNew || product.isBestseller || product.isUsed) && (
+        {(product.isNew || product.isBestseller || product.isUsed || (product.oldPrice && product.oldPrice > product.price)) && (
           <div className="absolute top-4 left-4 flex flex-col gap-2">
-            {product.isNew && <span className="px-3 py-1 bg-primary text-secondary text-[10px] uppercase tracking-widest font-semibold border border-primary">Novo</span>}
-            {product.isBestseller && <span className="px-3 py-1 bg-gold text-secondary text-[10px] uppercase tracking-widest font-semibold border border-gold">Destaque</span>}
+            {product.isNew && <span className="px-3 py-1 bg-primary text-secondary text-[10px] uppercase tracking-widest font-semibold border border-primary shadow-sm">Novo</span>}
+            {product.isBestseller && <span className="px-3 py-1 bg-gold text-secondary text-[10px] uppercase tracking-widest font-semibold border border-gold shadow-sm">Destaque</span>}
+            {product.oldPrice && product.oldPrice > product.price && (
+              <span className="px-3 py-1 bg-red-600 text-white text-[10px] uppercase tracking-widest font-bold border border-red-600 shadow-sm">
+                -{Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}% OFF
+              </span>
+            )}
             {product.isUsed && (
-              <span className={`px-3 py-1 text-[10px] uppercase tracking-widest font-semibold border ${
+              <span className={`px-3 py-1 text-[10px] uppercase tracking-widest font-semibold border shadow-sm ${
                 conditionBadgeClass(product.condition)
               }`}>
                 {product.condition ?? 'Usado'}

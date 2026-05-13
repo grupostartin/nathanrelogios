@@ -7,8 +7,14 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-40 w-full bg-secondary border-b border-gray-light transition-all duration-300">
+      <div className="w-full bg-primary text-secondary py-2 px-4 text-center">
+        <p className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] font-medium">
+          Envio Seguro para todo o Brasil • 10x sem juros no cartão • Compra Garantida
+        </p>
+      </div>
+      <nav className="sticky top-0 z-40 w-full bg-secondary/95 backdrop-blur-md border-b border-gray-light transition-all duration-300">
         <div className="max-w-[1440px] mx-auto px-6 lg:px-16 flex items-center justify-between h-20">
+
 
           {/* Logo */}
           <Link to="/" className="flex flex-col items-center justify-center shrink-0">

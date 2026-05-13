@@ -34,3 +34,29 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Esconder elementos de administração e propaganda de widgets (Elfsight, etc) */
+[class*="WidgetToolbar"], 
+[class*="EditButton"],
+[class*="Panel__Container"],
+[class*="eapps-widget-toolbar"],
+[class*="BadgeContainer"],
+[class*="Common__Container"],
+[class*="Badge__Container"],
+[class*="Badge__Close"],
+[class*="Badge__Text"],
+#el-admin-bar,
+div[class*="elfsight-app"] > a,
+.elfsight-app-instagram-feed > a[href*="elfsight"],
+a[href*="elfsight.com/widget"],
+a[class*="Badge__"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  z-index: -9999 !important;
+}
