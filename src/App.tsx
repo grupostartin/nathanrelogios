@@ -14,25 +14,34 @@ import Catalog from './pages/Catalog';
 import Product from './pages/Product';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import Admin from './pages/Admin';
 
 export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <div className="flex-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/catalogo" element={<Catalog />} />
-            <Route path="/produto/:id" element={<Product />} />
-            <Route path="/sobre" element={<About />} />
-            <Route path="/contato" element={<Contact />} />
-          </Routes>
-        </div>
-        <Footer />
-        <WhatsAppButton />
-      </div>
+      <Routes>
+        {/* Admin — sem Navbar/Footer globais */}
+        <Route path="/admin" element={<Admin />} />
+
+        {/* Loja — layout completo */}
+        <Route path="/*" element={
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <div className="flex-1">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/catalogo" element={<Catalog />} />
+                <Route path="/produto/:id" element={<Product />} />
+                <Route path="/sobre" element={<About />} />
+                <Route path="/contato" element={<Contact />} />
+              </Routes>
+            </div>
+            <Footer />
+            <WhatsAppButton />
+          </div>
+        } />
+      </Routes>
     </BrowserRouter>
   );
 }

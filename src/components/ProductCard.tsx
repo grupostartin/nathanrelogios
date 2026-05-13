@@ -1,6 +1,17 @@
 import { Link } from 'react-router-dom';
 import { Product, formatPrice } from '../data/products';
 
+function conditionBadgeClass(condition?: string | null): string {
+  switch (condition) {
+    case 'Seminovo':     return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+    case 'Ótimo Estado':  return 'bg-green-100 text-green-800 border-green-300';
+    case 'Bom Estado':   return 'bg-blue-100 text-blue-800 border-blue-300';
+    case 'Com Detalhes': return 'bg-amber-100 text-amber-800 border-amber-300';
+    case 'Para Revisão': return 'bg-red-100 text-red-800 border-red-300';
+    default:             return 'bg-gray-100 text-gray-700 border-gray-300';
+  }
+}
+
 interface ProductCardProps {
   product: Product;
   key?: string | number;
@@ -19,10 +30,17 @@ export default function ProductCard({ product }: ProductCardProps) {
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-in-out mix-blend-multiply"
           loading="lazy"
         />
-        {(product.isNew || product.isBestseller) && (
+        {(product.isNew || product.isBestseller || product.isUsed) && (
           <div className="absolute top-4 left-4 flex flex-col gap-2">
             {product.isNew && <span className="px-3 py-1 bg-primary text-secondary text-[10px] uppercase tracking-widest font-semibold border border-primary">Novo</span>}
             {product.isBestseller && <span className="px-3 py-1 bg-gold text-secondary text-[10px] uppercase tracking-widest font-semibold border border-gold">Destaque</span>}
+            {product.isUsed && (
+              <span className={`px-3 py-1 text-[10px] uppercase tracking-widest font-semibold border ${
+                conditionBadgeClass(product.condition)
+              }`}>
+                {product.condition ?? 'Usado'}
+              </span>
+            )}
           </div>
         )}
       </Link>
