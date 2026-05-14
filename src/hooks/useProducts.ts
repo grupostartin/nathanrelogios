@@ -7,6 +7,8 @@ interface UseProductsOptions {
   gender?: string | null;
   line?: string | null;
   isUsed?: boolean | null;
+  isBestseller?: boolean | null;
+  isNew?: boolean | null;
   onlyActive?: boolean;
 }
 
@@ -18,7 +20,7 @@ interface UseProductsResult {
 }
 
 export function useProducts(options: UseProductsOptions = {}): UseProductsResult {
-  const { category, gender, line, isUsed, onlyActive = true } = options;
+  const { category, gender, line, isUsed, isBestseller, isNew, onlyActive = true } = options;
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +57,14 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
       if (isUsed !== null && isUsed !== undefined) {
         query = query.eq('is_used', isUsed);
       }
+      
+      if (isBestseller !== null && isBestseller !== undefined) {
+        query = query.eq('is_bestseller', isBestseller);
+      }
+
+      if (isNew !== null && isNew !== undefined) {
+        query = query.eq('is_new', isNew);
+      }
 
       const { data, error: supaError } = await query;
 
@@ -75,7 +85,7 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
     return () => {
       cancelled = true;
     };
-  }, [category, gender, line, isUsed, onlyActive, tick]);
+  }, [category, gender, line, isUsed, isBestseller, isNew, onlyActive, tick]);
 
   return {
     products,

@@ -86,18 +86,43 @@ function makeFilter(cat: Category): (p: Product) => boolean {
 // ─── Section Components ──────────────────────────────────────────────────────
 
 // 1. Hero
-function HeroSection({ s }: { s: HomeSection }) {
+function HeroSection({ s }: { s: HomeSection; key?: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [opacity, setOpacity] = useState(0);
+
+  const handleTimeUpdate = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const fadePoint = 1; // fade starts 1s before end
+    if (video.currentTime > video.duration - fadePoint) {
+      setOpacity(0);
+    } else if (video.currentTime < fadePoint) {
+      setOpacity(0.6);
+    }
+  };
+
   return (
     <section 
-      className="relative h-[75vh] min-h-[520px] w-full flex items-center justify-center overflow-hidden"
-      style={{ background: s.bg_color || '#111' }}
+      className="relative h-[85vh] min-h-[600px] w-full flex items-center justify-center overflow-hidden bg-black"
     >
-      {s.image_url && (
-        <div className="absolute inset-0">
-          <img src={s.image_url} alt={s.title || 'Hero'} className="w-full h-full object-cover opacity-60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        </div>
-      )}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <video 
+          ref={videoRef}
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          preload="auto"
+          onTimeUpdate={handleTimeUpdate}
+          onPlay={() => setOpacity(0.6)}
+          style={{ opacity, transition: 'opacity 1s ease-in-out' }}
+          className="absolute inset-0 w-full h-full object-cover scale-110 blur-[8px]"
+        >
+          <source src="/hero_video.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-black/90" />
+      </div>
+
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center">
         {s.label && (
           <motion.span 
@@ -134,56 +159,55 @@ function HeroSection({ s }: { s: HomeSection }) {
 }
 
 // 2. Trust Bar
-function TrustBar({ s }: { s: HomeSection }) {
+function TrustBar({ s }: { s: HomeSection; key?: string }) {
   const items = s.config?.items || [
-    { icon: '🚚', text: 'Entrega nacional' },
-    { icon: '💳', text: 'Até 10x sem juros' },
-    { icon: '✅', text: 'Originalidade garantida' },
-    { icon: '⌚', text: 'Estoque no Brasil' }
+    { text: 'Entrega Segura' },
+    { text: 'Parcelamento em até 10x' },
+    { text: 'Autenticidade Garantida' },
+    { text: 'Especialista Citizen' }
   ];
   return (
     <div className="bg-primary text-secondary border-b border-white/5">
-      <div className="max-w-[1440px] mx-auto px-6 lg:px-16 py-3.5 flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-6 md:gap-10 font-sans text-[11px] uppercase tracking-widest text-secondary/70 flex-wrap">
+      <div className="max-w-[1440px] mx-auto px-6 lg:px-16 py-4 flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-8 md:gap-12 font-sans text-[10px] uppercase tracking-[0.2em] text-secondary/60 flex-wrap">
           {items.map((item: any, i: number) => (
             <span key={i} className="flex items-center gap-2">
-              <span className="text-gold text-xs">{item.icon}</span> {item.text}
+              <span className="w-1 h-1 bg-gold rounded-full" />
+              {item.text}
             </span>
           ))}
         </div>
-        <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer" className="font-sans text-[11px] uppercase tracking-widest text-gold hover:text-white transition-colors flex items-center gap-1.5">
-          Consultoria Directa <ArrowRight className="w-3.5 h-3.5" />
+        <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer" className="font-sans text-[10px] uppercase tracking-[0.2em] text-gold hover:text-white transition-colors flex items-center gap-1.5">
+          Consultoria <ArrowRight className="w-3.5 h-3.5" />
         </a>
       </div>
     </div>
   );
 }
 
-// 3. Featured Products
-function FeaturedProducts({ s }: { s: HomeSection }) {
-  const filter = s.config?.filter || 'all';
-  const { products, loading } = useProducts({ 
-    [filter === 'bestseller' ? 'isBestseller' : filter === 'new' ? 'isNew' : '']: true 
-  });
+// 3. Featured Products (Destaques)
+function FeaturedProducts({ s }: { s: HomeSection; key?: string }) {
+  const { products, loading } = useProducts({ isBestseller: true });
   
   if (loading) return null;
   const visible = products.slice(0, s.config?.columns || 4);
 
   return (
-    <section className="py-20 bg-secondary overflow-hidden">
+    <section className="py-24 bg-secondary overflow-hidden border-b border-gray-light">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-16">
-        <div className="flex items-end justify-between mb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div>
             {s.label && <span className="label-caps text-gold mb-3 block">{s.label}</span>}
-            <h2 className="font-serif text-3xl md:text-4xl tracking-tight">{s.title}</h2>
+            <h2 className="font-serif text-4xl md:text-5xl tracking-tight">{s.title || 'Destaques da Semana'}</h2>
           </div>
           {s.cta_label && (
-            <Link to={s.cta_url || '/catalogo'} className="hidden md:flex items-center gap-2 font-sans text-xs uppercase tracking-[0.2em] text-gray-medium hover:text-primary transition-colors">
-              {s.cta_label} <ArrowRight className="w-4 h-4" />
+            <Link to={s.cta_url || '/catalogo'} className="inline-flex items-center gap-2 font-sans text-[10px] uppercase tracking-[0.25em] text-primary hover:text-gold transition-colors font-bold group">
+              {s.cta_label} 
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           )}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-10">
           {visible.map(p => <ProductCard key={p.id} product={p} />)}
         </div>
       </div>
@@ -192,7 +216,7 @@ function FeaturedProducts({ s }: { s: HomeSection }) {
 }
 
 // 4. Flash Sale
-function FlashSale({ s }: { s: HomeSection }) {
+function FlashSale({ s }: { s: HomeSection; key?: string }) {
   return (
     <section className="py-16 bg-black text-white relative overflow-hidden group">
       {s.config?.image && (
@@ -218,7 +242,7 @@ function FlashSale({ s }: { s: HomeSection }) {
 }
 
 // 5. Category Grid
-function CategoryGrid({ s }: { s: HomeSection }) {
+function CategoryGrid({ s }: { s: HomeSection; key?: string }) {
   const items = s.config?.items || [];
   return (
     <section className="py-20 bg-secondary">
@@ -241,7 +265,7 @@ function CategoryGrid({ s }: { s: HomeSection }) {
 }
 
 // 6. Banner Split
-function BannerSplit({ s }: { s: HomeSection }) {
+function BannerSplit({ s }: { s: HomeSection; key?: string }) {
   const isLeft = s.config?.imagePosition === 'left';
   return (
     <section className="py-20 bg-offwhite">
@@ -267,7 +291,7 @@ function BannerSplit({ s }: { s: HomeSection }) {
 }
 
 // 7. Instagram
-function InstagramFeed({ s }: { s: HomeSection }) {
+function InstagramFeed({ s }: { s: HomeSection; key?: string }) {
   const embedCode = s.config?.embedCode;
   return (
     <section className="py-20 bg-secondary border-t border-gray-light">
@@ -295,7 +319,7 @@ function InstagramFeed({ s }: { s: HomeSection }) {
 }
 
 // 8. Newsletter
-function NewsletterStrip({ s }: { s: HomeSection }) {
+function NewsletterStrip({ s }: { s: HomeSection; key?: string }) {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const handleSubscribe = async (e: React.FormEvent) => {
@@ -329,65 +353,33 @@ function NewsletterStrip({ s }: { s: HomeSection }) {
   );
 }
 
-// 9. Dynamic Catalog Tabs (The specialized section)
+// 9. Stock Section (Show all products)
 const PAGE_SIZE = 12;
-function InlineCatalog({ s }: { s: HomeSection }) {
-  const { categories, loading: catsLoading } = useCategories();
-  const [activeId, setActiveId] = useState<string>('');
-  const [showFilters, setShowFilters] = useState(false);
+function StockSection({ s }: { s: HomeSection; key?: string }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const catalogRef = useRef<HTMLElement>(null);
+  const { products, loading } = useProducts();
 
-  const { products, loading: prodsLoading } = useProducts();
-  const loading = catsLoading || prodsLoading;
-
-  useEffect(() => {
-    if (categories.length > 0 && !activeId) setActiveId(categories[0].id);
-  }, [categories, activeId]);
-
-  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [activeId]);
-
-  const activeCat = categories.find(c => c.id === activeId) ?? categories[0];
-  const filtered = activeCat ? products.filter(makeFilter(activeCat)) : products;
-  const visible = filtered.slice(0, visibleCount);
-  const hasMore = filtered.length > visibleCount;
-  const allCatId = categories.find(c => c.filter_type === 'all')?.id ?? '';
+  const visible = products.slice(0, visibleCount);
+  const hasMore = products.length > visibleCount;
 
   return (
-    <section id="catalogo" ref={catalogRef} className="py-20 bg-secondary">
+    <section id="estoque" className="py-24 bg-secondary">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-16">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
-            <span className="label-caps text-gold mb-3 block">{s.label || 'Nosso Estoque'}</span>
-            <h2 className="font-serif text-3xl md:text-4xl tracking-tight">{s.title || 'Explorar Coleção'}</h2>
+            <span className="label-caps text-gold mb-3 block">{s.label || 'Nathan Relógios'}</span>
+            <h2 className="font-serif text-4xl md:text-5xl tracking-tight">{s.title || 'Todo o Estoque'}</h2>
+            <p className="font-sans text-gray-medium mt-4 max-w-xl text-sm md:text-base leading-relaxed">
+              Explore nossa seleção completa de modelos Citizen. Relógios novos e seminovos com garantia de autenticidade.
+            </p>
           </div>
-          <button onClick={() => setShowFilters(!showFilters)} className="md:hidden flex items-center gap-2 border border-gray-light px-5 py-2.5 font-sans text-xs uppercase tracking-widest">
-            <SlidersHorizontal className="w-4 h-4" /> Filtrar
-          </button>
-        </div>
-
-        <div className={`${showFilters ? 'block' : 'hidden'} md:block mb-12`}>
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-2 border-b border-gray-light">
-            {catsLoading ? (
-              <div className="flex gap-6 py-4">{[1,2,3,4,5].map(i => <div key={i} className="h-5 w-24 bg-gray-100 animate-pulse rounded" />)}</div>
-            ) : categories.map((cat) => {
-              const count = products.filter(makeFilter(cat)).length;
-              const isActive = activeId === cat.id;
-              return (
-                <button key={cat.id} onClick={() => { setActiveId(cat.id); setShowFilters(false); }}
-                  className={`relative shrink-0 px-6 py-4 font-sans text-sm uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${isActive ? 'text-primary font-bold' : 'text-gray-medium hover:text-primary'}`}>
-                  <span className="mr-2 text-base">{cat.emoji}</span> {cat.label}
-                  {count > 0 && <span className={`ml-2 text-[10px] px-2 py-0.5 rounded-full font-mono ${isActive ? 'bg-primary text-white' : 'bg-gray-100 text-gray-medium'}`}>{count}</span>}
-                  {isActive && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary" />}
-                </button>
-              );
-            })}
-            {activeId !== allCatId && allCatId && (
-              <button onClick={() => setActiveId(allCatId)} className="ml-auto flex items-center gap-2 text-xs text-gray-medium hover:text-primary transition-colors font-sans uppercase tracking-[0.15em] px-4">
-                <X className="w-3.5 h-3.5" /> Limpar
-              </button>
-            )}
-          </div>
+          <Link 
+            to="/catalogo" 
+            className="inline-flex items-center gap-3 px-8 py-4 border border-primary font-sans uppercase text-[11px] font-bold tracking-[0.2em] hover:bg-primary hover:text-white transition-all duration-300"
+          >
+            Ver por Categoria
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
         {loading ? (
@@ -395,23 +387,25 @@ function InlineCatalog({ s }: { s: HomeSection }) {
             <Loader2 className="w-10 h-10 text-gold animate-spin" />
             <p className="font-sans text-xs uppercase tracking-[0.2em] text-gray-medium">Sincronizando estoque...</p>
           </div>
-        ) : filtered.length === 0 ? (
+        ) : products.length === 0 ? (
           <div className="text-center py-40">
-            <p className="font-serif text-2xl text-gray-medium mb-6">Nenhum modelo disponível nesta categoria no momento.</p>
-            <button onClick={() => setActiveId(allCatId)} className="font-sans text-xs uppercase tracking-widest text-gold hover:underline">Ver catálogo completo</button>
+            <p className="font-serif text-2xl text-gray-medium mb-6">Nenhum modelo disponível no momento.</p>
           </div>
         ) : (
           <>
-            <p className="font-sans text-[10px] text-gray-medium uppercase tracking-[0.25em] mb-10">{filtered.length} Peças Encontradas</p>
-            <AnimatePresence mode="wait">
-              <motion.div key={activeId} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
-                {visible.map(product => <ProductCard key={product.id} product={product} />)}
-              </motion.div>
-            </AnimatePresence>
+            <p className="font-sans text-[10px] text-gray-medium uppercase tracking-[0.25em] mb-10 border-b border-gray-light pb-4">
+              {products.length} Peças Disponíveis
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
+              {visible.map(product => <ProductCard key={product.id} product={product} />)}
+            </div>
+            
             {hasMore && (
               <div className="mt-20 text-center">
-                <button onClick={() => setVisibleCount(c => c + PAGE_SIZE)} className="inline-flex items-center gap-4 border border-primary px-16 py-5 font-sans uppercase text-xs font-bold tracking-[0.25em] hover:bg-primary hover:text-white transition-all duration-500">
+                <button 
+                  onClick={() => setVisibleCount(c => c + PAGE_SIZE)} 
+                  className="inline-flex items-center gap-4 border border-primary px-16 py-5 font-sans uppercase text-xs font-bold tracking-[0.25em] hover:bg-primary hover:text-white transition-all duration-500"
+                >
                   Carregar Mais Modelos <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -447,7 +441,7 @@ export default function Home() {
           case 'instagram':         return <InstagramFeed key={s.id} s={s} />;
           case 'newsletter':        return <NewsletterStrip key={s.id} s={s} />;
           case 'flash_sale':        return <FlashSale key={s.id} s={s} />;
-          case 'catalog_tabs':      return <InlineCatalog key={s.id} s={s} />;
+          case 'catalog_tabs':      return <StockSection key={s.id} s={s} />;
           default:                  return null;
         }
       })}

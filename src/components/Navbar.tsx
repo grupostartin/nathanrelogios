@@ -29,7 +29,7 @@ export default function Navbar() {
               <span className="absolute -bottom-1 left-0 w-0 h-px bg-gold transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link to="/sobre" className="font-serif tracking-widest uppercase text-sm hover:text-gold transition-colors duration-300 relative group">
-              A Boutique
+              Sobre a loja
               <span className="absolute -bottom-1 left-0 w-0 h-px bg-gold transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link to="/contato" className="font-serif tracking-widest uppercase text-sm hover:text-gold transition-colors duration-300 relative group">
@@ -49,7 +49,7 @@ export default function Navbar() {
               rel="noopener noreferrer"
               className="hidden md:flex items-center justify-center px-6 py-3 bg-primary text-secondary text-[12px] tracking-widest uppercase font-semibold hover:bg-gold transition-colors duration-300"
             >
-              Falar Especialista
+              Entre em Contato
             </a>
 
             <button
