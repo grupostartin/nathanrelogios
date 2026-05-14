@@ -5,7 +5,7 @@ import { Product, normalizeProduct, formatPrice, CONDITIONS } from '../data/prod
 import ImageUploader from '../components/ImageUploader';
 import {
   Plus, Pencil, Trash2, Eye, EyeOff, Loader2,
-  LogOut, Save, X, ChevronLeft, Package, Layout, LayoutDashboard, Mail
+  LogOut, Save, X, ChevronLeft, Package, Layout, LayoutDashboard, Mail, Tag, GripVertical
 } from 'lucide-react';
 
 const ADMIN_PASSWORD = 'nathan2025';
@@ -43,6 +43,16 @@ interface NewsletterSubscription {
   id: string;
   email: string;
   created_at: string;
+}
+
+interface Category {
+  id: string;
+  label: string;
+  emoji: string;
+  filter_type: 'all' | 'new' | 'bestseller' | 'used' | 'category' | 'gender';
+  filter_value?: string | null;
+  position: number;
+  active: boolean;
 }
 
 
@@ -88,11 +98,12 @@ export default function Admin() {
   const [soldModal, setSoldModal] = useState<Product | null>(null);
 
   const [view, setView] = useState<'list' | 'form'>('list');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'home' | 'leads'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'home' | 'categories' | 'leads'>('dashboard');
   const [soldProducts, setSoldProducts] = useState<SoldProduct[]>([]);
   const [newsletterSubscriptions, setNewsletterSubscriptions] = useState<NewsletterSubscription[]>([]);
 
   const [sections, setSections] = useState<HomeSection[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
   const [formError, setFormError] = useState('');
@@ -146,6 +157,14 @@ export default function Admin() {
     if (data) setNewsletterSubscriptions(data as NewsletterSubscription[]);
   }
 
+  async function fetchCategories() {
+    const { data } = await supabase
+      .from('categories')
+      .select('*')
+      .order('position');
+    if (data) setCategories(data as Category[]);
+  }
+
 
   useEffect(() => {
     if (authenticated) {
@@ -153,6 +172,7 @@ export default function Admin() {
       fetchSoldProducts();
       fetchSections();
       fetchNewsletterSubscriptions();
+      fetchCategories();
     }
   }, [authenticated]);
 
@@ -625,12 +645,12 @@ export default function Admin() {
 
       {/* Tab navigation */}
       <div className="bg-secondary border-b border-gray-light px-6 lg:px-16">
-        <nav className="flex gap-0">
-          {([['dashboard', 'Dashboard'], ['products', 'Produtos'], ['home', 'Página Inicial']] as const).map(([tab, label]) => (
+        <nav className="flex gap-0 overflow-x-auto">
+          {([['dashboard', 'Dashboard'], ['products', 'Produtos'], ['categories', 'Categorias'], ['home', 'Página Inicial'], ['leads', 'Leads']] as const).map(([tab, label]) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`py-4 px-6 font-sans text-xs uppercase tracking-widest font-semibold border-b-2 transition-colors ${
+              className={`py-4 px-5 font-sans text-xs uppercase tracking-widest font-semibold border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === tab
                   ? 'border-primary text-primary'
                   : 'border-transparent text-gray-medium hover:text-primary'
@@ -693,6 +713,11 @@ export default function Admin() {
               </table>
             </div>
           </div>
+        ) : activeTab === 'categories' ? (
+          <CategoriesEditor
+            categories={categories}
+            onRefresh={fetchCategories}
+          />
         ) : activeTab === 'home' ? (
           <HomeEditor
             sections={sections}
@@ -1030,7 +1055,302 @@ function Dashboard({ products, soldProducts }: DashboardProps) {
   );
 }
 
-// ─── HomeEditor Component ─────────────────────────────────────────────────────
+// ─── CategoriesEditor Component ──────────────────────────────────────────────
+interface CategoriesEditorProps {
+  categories: Category[];
+  onRefresh: () => void;
+}
+
+const FILTER_TYPE_LABELS: Record<string, string> = {
+  all:        'Todos os produtos',
+  new:        'Novidades (is_new)',
+  bestseller: 'Destaques (is_bestseller)',
+  used:       'Seminovos / Usados',
+  category:   'Por categoria (campo)',
+  gender:     'Por gênero (campo)',
+};
+
+function CategoriesEditor({ categories, onRefresh }: CategoriesEditorProps) {
+  const [editingId, setEditingId]   = useState<string | null>(null);
+  const [savingId,  setSavingId]    = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showNew,   setShowNew]     = useState(false);
+
+  const emptyNewCat = { label: '', emoji: '⌚', filter_type: 'all' as Category['filter_type'], filter_value: '' };
+  const [newCat, setNewCat]       = useState(emptyNewCat);
+  const [editCat, setEditCat]     = useState<Partial<Category>>({});
+
+  // ── Helpers ──
+  async function toggleActive(cat: Category) {
+    await supabase.from('categories').update({ active: !cat.active }).eq('id', cat.id);
+    onRefresh();
+  }
+
+  async function moveCategory(cat: Category, dir: -1 | 1) {
+    const sorted = [...categories].sort((a, b) => a.position - b.position);
+    const idx    = sorted.findIndex(c => c.id === cat.id);
+    const target = sorted[idx + dir];
+    if (!target) return;
+    await supabase.from('categories').update({ position: target.position }).eq('id', cat.id);
+    await supabase.from('categories').update({ position: cat.position  }).eq('id', target.id);
+    onRefresh();
+  }
+
+  async function deleteCategory(id: string) {
+    if (!window.confirm('Excluir esta categoria?')) return;
+    setDeletingId(id);
+    await supabase.from('categories').delete().eq('id', id);
+    setDeletingId(null);
+    onRefresh();
+  }
+
+  async function saveEdit(id: string) {
+    setSavingId(id);
+    await supabase.from('categories').update(editCat).eq('id', id);
+    setSavingId(null);
+    setEditingId(null);
+    setEditCat({});
+    onRefresh();
+  }
+
+  async function createCategory() {
+    if (!newCat.label.trim()) return;
+    const maxPos = categories.reduce((m, c) => Math.max(m, c.position), -1);
+    await supabase.from('categories').insert([{
+      label:        newCat.label.trim(),
+      emoji:        newCat.emoji || '⌚',
+      filter_type:  newCat.filter_type,
+      filter_value: ['category', 'gender'].includes(newCat.filter_type) ? newCat.filter_value || null : null,
+      position:     maxPos + 1,
+      active:       true,
+    }]);
+    setNewCat(emptyNewCat);
+    setShowNew(false);
+    onRefresh();
+  }
+
+  const sorted = [...categories].sort((a, b) => a.position - b.position);
+
+  return (
+    <div className="max-w-3xl mx-auto space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h2 className="font-serif text-2xl">Categorias / Filtros</h2>
+          <p className="font-sans text-sm text-gray-medium mt-1">
+            Configure as abas de filtro exibidas na página inicial.
+          </p>
+        </div>
+        <button
+          onClick={() => setShowNew(v => !v)}
+          className="flex items-center gap-2 bg-primary text-secondary px-5 py-2.5 font-sans uppercase text-xs tracking-widest font-semibold hover:bg-gold transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Nova Categoria
+        </button>
+      </div>
+
+      {/* New category form */}
+      {showNew && (
+        <div className="bg-secondary border border-gold/40 p-6 space-y-4">
+          <h3 className="font-serif text-lg">Nova Categoria</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="label-caps text-gray-medium block mb-2">Label (nome visível)</label>
+              <input
+                value={newCat.label}
+                onChange={e => setNewCat(p => ({ ...p, label: e.target.value }))}
+                className="w-full border border-gray-light px-4 py-3 font-sans text-sm bg-offwhite outline-none focus:border-primary"
+                placeholder="Ex: Eco-Drive"
+              />
+            </div>
+            <div>
+              <label className="label-caps text-gray-medium block mb-2">Emoji</label>
+              <input
+                value={newCat.emoji}
+                onChange={e => setNewCat(p => ({ ...p, emoji: e.target.value }))}
+                className="w-full border border-gray-light px-4 py-3 font-sans text-sm bg-offwhite outline-none focus:border-primary"
+                placeholder="☀️"
+              />
+            </div>
+            <div>
+              <label className="label-caps text-gray-medium block mb-2">Tipo de Filtro</label>
+              <select
+                value={newCat.filter_type}
+                onChange={e => setNewCat(p => ({ ...p, filter_type: e.target.value as Category['filter_type'] }))}
+                className="w-full border border-gray-light px-4 py-3 font-sans text-sm bg-offwhite outline-none focus:border-primary"
+              >
+                {Object.entries(FILTER_TYPE_LABELS).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
+            </div>
+            {['category', 'gender'].includes(newCat.filter_type) && (
+              <div>
+                <label className="label-caps text-gray-medium block mb-2">
+                  Valor {newCat.filter_type === 'category' ? '(categoria)' : '(gênero)'}
+                </label>
+                <input
+                  value={newCat.filter_value || ''}
+                  onChange={e => setNewCat(p => ({ ...p, filter_value: e.target.value }))}
+                  className="w-full border border-gray-light px-4 py-3 font-sans text-sm bg-offwhite outline-none focus:border-primary"
+                  placeholder={newCat.filter_type === 'gender' ? 'Masculino ou Feminino' : 'Ex: Eco-Drive'}
+                />
+              </div>
+            )}
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={createCategory}
+              className="flex items-center gap-2 bg-primary text-secondary px-8 py-3 font-sans uppercase text-xs tracking-widest font-semibold hover:bg-gold transition-colors"
+            >
+              <Save className="w-4 h-4" /> Criar
+            </button>
+            <button
+              onClick={() => { setShowNew(false); setNewCat(emptyNewCat); }}
+              className="px-6 py-3 border border-gray-light text-gray-medium font-sans text-xs uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Category list */}
+      {sorted.map((cat, idx) => (
+        <div
+          key={cat.id}
+          className={`bg-secondary border transition-all ${cat.active ? 'border-gray-light' : 'border-dashed border-gray-light opacity-60'}`}
+        >
+          {/* Row */}
+          <div className="flex items-center gap-4 px-5 py-4">
+            {/* Order arrows */}
+            <div className="flex flex-col gap-0.5 shrink-0">
+              <button onClick={() => moveCategory(cat, -1)} disabled={idx === 0}
+                className="text-gray-light hover:text-primary disabled:opacity-20 transition-colors text-xs leading-none">▲</button>
+              <button onClick={() => moveCategory(cat, 1)} disabled={idx === sorted.length - 1}
+                className="text-gray-light hover:text-primary disabled:opacity-20 transition-colors text-xs leading-none">▼</button>
+            </div>
+
+            {/* Emoji + label */}
+            <span className="text-2xl shrink-0">{cat.emoji}</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-sans font-semibold text-sm">{cat.label}</p>
+              <p className="font-mono text-[10px] text-gray-medium uppercase tracking-wider">
+                {FILTER_TYPE_LABELS[cat.filter_type]}
+                {cat.filter_value ? ` — "${cat.filter_value}"` : ''}
+              </p>
+            </div>
+
+            {/* Active toggle */}
+            <button
+              onClick={() => toggleActive(cat)}
+              className={`text-[10px] uppercase tracking-widest font-semibold px-3 py-1.5 border transition-colors shrink-0 ${
+                cat.active
+                  ? 'border-green-300 text-green-700 bg-green-50 hover:bg-red-50 hover:border-red-300 hover:text-red-700'
+                  : 'border-gray-light text-gray-medium hover:border-green-300 hover:text-green-700'
+              }`}
+            >
+              {cat.active ? 'Visível' : 'Oculta'}
+            </button>
+
+            {/* Edit */}
+            <button
+              onClick={() => {
+                if (editingId === cat.id) { setEditingId(null); setEditCat({}); }
+                else { setEditingId(cat.id); setEditCat({ label: cat.label, emoji: cat.emoji, filter_type: cat.filter_type, filter_value: cat.filter_value ?? '' }); }
+              }}
+              className="p-2 text-gray-medium hover:text-primary transition-colors"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+
+            {/* Delete */}
+            <button
+              onClick={() => deleteCategory(cat.id)}
+              disabled={deletingId === cat.id}
+              className="p-2 text-gray-medium hover:text-red-500 transition-colors disabled:opacity-40"
+            >
+              {deletingId === cat.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+            </button>
+          </div>
+
+          {/* Inline edit panel */}
+          {editingId === cat.id && (
+            <div className="border-t border-gray-light px-5 py-5 bg-offwhite space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="label-caps text-gray-medium block mb-2">Label</label>
+                  <input
+                    value={editCat.label || ''}
+                    onChange={e => setEditCat(p => ({ ...p, label: e.target.value }))}
+                    className="w-full border border-gray-light px-4 py-3 font-sans text-sm bg-white outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="label-caps text-gray-medium block mb-2">Emoji</label>
+                  <input
+                    value={editCat.emoji || ''}
+                    onChange={e => setEditCat(p => ({ ...p, emoji: e.target.value }))}
+                    className="w-full border border-gray-light px-4 py-3 font-sans text-sm bg-white outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="label-caps text-gray-medium block mb-2">Tipo de Filtro</label>
+                  <select
+                    value={editCat.filter_type || 'all'}
+                    onChange={e => setEditCat(p => ({ ...p, filter_type: e.target.value as Category['filter_type'] }))}
+                    className="w-full border border-gray-light px-4 py-3 font-sans text-sm bg-white outline-none focus:border-primary"
+                  >
+                    {Object.entries(FILTER_TYPE_LABELS).map(([k, v]) => (
+                      <option key={k} value={k}>{v}</option>
+                    ))}
+                  </select>
+                </div>
+                {['category', 'gender'].includes(editCat.filter_type || '') && (
+                  <div>
+                    <label className="label-caps text-gray-medium block mb-2">Valor do Filtro</label>
+                    <input
+                      value={editCat.filter_value || ''}
+                      onChange={e => setEditCat(p => ({ ...p, filter_value: e.target.value }))}
+                      className="w-full border border-gray-light px-4 py-3 font-sans text-sm bg-white outline-none focus:border-primary"
+                      placeholder={editCat.filter_type === 'gender' ? 'Masculino / Feminino' : 'Ex: Eco-Drive'}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => saveEdit(cat.id)}
+                  disabled={savingId === cat.id}
+                  className="flex items-center gap-2 bg-primary text-secondary px-8 py-3 font-sans uppercase text-xs tracking-widest font-semibold hover:bg-gold transition-colors disabled:opacity-60"
+                >
+                  {savingId === cat.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Salvar
+                </button>
+                <button
+                  onClick={() => { setEditingId(null); setEditCat({}); }}
+                  className="px-6 py-3 border border-gray-light text-gray-medium font-sans text-xs uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+
+      {sorted.length === 0 && (
+        <div className="text-center py-16">
+          <Tag className="w-10 h-10 text-gray-light mx-auto mb-4" />
+          <p className="font-serif text-xl text-gray-medium">Nenhuma categoria ainda.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 const SECTION_LABELS: Record<string, string> = {
   hero: 'Banner Principal (Hero)',
   featured_products: 'Produtos em Destaque',
@@ -1038,6 +1358,9 @@ const SECTION_LABELS: Record<string, string> = {
   trust_bar: 'Barra de Confiança',
   banner_split: 'Banner Dividido (Texto + Imagem)',
   instagram: 'Feed do Instagram',
+  flash_sale: 'Banner de Oferta (Flash Sale)',
+  newsletter: 'Seção de Newsletter',
+  catalog_tabs: 'Catálogo com Abas (Novo)',
 };
 
 interface HomeEditorProps {
@@ -1050,6 +1373,7 @@ function HomeEditor({ sections, onRefresh }: HomeEditorProps) {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [localEdits, setLocalEdits] = useState<Partial<HomeSection>>({});
   const [embedCode, setEmbedCode] = useState('');
+  const [configJson, setConfigJson] = useState('');
 
   function startEdit(s: HomeSection) {
     setEditingId(s.id);
@@ -1059,14 +1383,26 @@ function HomeEditor({ sections, onRefresh }: HomeEditorProps) {
       cta_label: s.cta_label, cta_url: s.cta_url,
       image_url: s.image_url, bg_color: s.bg_color,
     });
+    setConfigJson(JSON.stringify(s.config || {}, null, 2));
   }
 
   function cancelEdit() { setEditingId(null); setLocalEdits({}); }
 
   async function saveEdit(s: HomeSection) {
     setSavingId(s.id);
-    const updatedConfig = { ...s.config, ...(s.type === 'instagram' ? { embedCode } : {}) };
-    await supabase.from('homepage_sections').update({ ...localEdits, config: updatedConfig }).eq('id', s.id);
+    let finalConfig = s.config;
+    try {
+      finalConfig = JSON.parse(configJson);
+      if (s.type === 'instagram' && embedCode) {
+        finalConfig.embedCode = embedCode;
+      }
+    } catch (e) {
+      alert('Configuração JSON inválida. Por favor, corrija o formato.');
+      setSavingId(null);
+      return;
+    }
+    
+    await supabase.from('homepage_sections').update({ ...localEdits, config: finalConfig }).eq('id', s.id);
     setSavingId(null);
     setEditingId(null);
     onRefresh();
@@ -1138,7 +1474,7 @@ function HomeEditor({ sections, onRefresh }: HomeEditorProps) {
           {editingId === s.id && (
             <div className="border-t border-gray-light px-6 py-6 bg-offwhite space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {['hero','featured_products','category_grid','trust_bar','banner_split','instagram'].includes(s.type) && (
+                {['hero','featured_products','category_grid','trust_bar','banner_split','instagram', 'flash_sale', 'newsletter', 'catalog_tabs'].includes(s.type) && (
                   <>
                     {s.type !== 'category_grid' && s.type !== 'trust_bar' && (
                       <div className="md:col-span-2">
@@ -1151,7 +1487,7 @@ function HomeEditor({ sections, onRefresh }: HomeEditorProps) {
                         />
                       </div>
                     )}
-                    {['hero','banner_split','featured_products'].includes(s.type) && (
+                    {['hero','banner_split','featured_products', 'flash_sale', 'catalog_tabs'].includes(s.type) && (
                       <div className="md:col-span-2">
                         <label className="label-caps text-gray-medium block mb-2">Subtítulo</label>
                         <textarea
@@ -1188,7 +1524,7 @@ function HomeEditor({ sections, onRefresh }: HomeEditorProps) {
                         />
                       </div>
                     </div>
-                    {s.type !== 'category_grid' && s.type !== 'trust_bar' && s.type !== 'instagram' && (
+                    {['hero', 'banner_split', 'featured_products', 'flash_sale'].includes(s.type) && (
                       <div className="md:col-span-2">
                         <label className="label-caps text-gray-medium block mb-2">URL da imagem</label>
                         <input
@@ -1238,6 +1574,19 @@ function HomeEditor({ sections, onRefresh }: HomeEditorProps) {
                         {embedCode && (
                           <p className="text-xs text-emerald-600 mt-2">✓ Embed code definido — salve para ativar.</p>
                         )}
+                      </div>
+                    )}
+                    
+                    {['featured_products', 'flash_sale', 'category_grid', 'trust_bar'].includes(s.type) && (
+                      <div className="md:col-span-2">
+                        <label className="label-caps text-gray-medium block mb-2">Configuração Avançada (JSON)</label>
+                        <p className="font-sans text-[10px] text-gray-medium mb-2 uppercase tracking-wider">Ajuste parâmetros como filtros, colunas e itens internos.</p>
+                        <textarea
+                          value={configJson}
+                          onChange={e => setConfigJson(e.target.value)}
+                          rows={6}
+                          className="w-full border border-gray-light bg-secondary px-4 py-3 font-mono text-xs outline-none focus:border-primary resize-y"
+                        />
                       </div>
                     )}
                   </>
