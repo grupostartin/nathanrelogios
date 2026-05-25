@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="bg-secondary border-t border-gray-light pt-16 pb-8">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
           <div className="md:col-span-2">
             <Link to="/" className="inline-flex flex-col items-start mb-6">
               <span className="font-serif text-3xl tracking-[0.05em] uppercase leading-none">Nathan</span>
@@ -17,26 +17,22 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-serif uppercase tracking-widest text-sm mb-6">Categorias</h4>
-            <ul className="space-y-4">
-              <li><Link to="/catalogo?categoria=Automático" className="text-gray-medium hover:text-primary transition-colors text-sm">Automáticos</Link></li>
-              <li><Link to="/catalogo?linha=Eco-Drive" className="text-gray-medium hover:text-primary transition-colors text-sm">Eco-Drive</Link></li>
-              <li><Link to="/catalogo?genero=Feminino" className="text-gray-medium hover:text-primary transition-colors text-sm">Femininos</Link></li>
-              <li><Link to="/catalogo?genero=Masculino" className="text-gray-medium hover:text-primary transition-colors text-sm">Masculinos</Link></li>
-            </ul>
-          </div>
-
-          <div>
             <h4 className="font-serif uppercase tracking-widest text-sm mb-6">Atendimento</h4>
-            <ul className="space-y-4">
+            <ul className="space-y-3">
               <li className="text-gray-medium text-sm flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                WhatsApp: (11) 99999-9999
+                <a href="https://wa.me/5531986952057" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                  WhatsApp: (31) 98695-2057
+                </a>
               </li>
-              <li className="text-gray-medium text-sm">Seg - Sex: 9h às 18h</li>
-              <li>
-                <a href="mailto:contato@citizenboutique.com" className="text-gray-medium hover:text-primary transition-colors text-sm">
-                  contato@nathanrelogios.com.br
+              <li className="text-gray-medium text-sm font-sans text-gray-medium/80 space-y-1">
+                <div>Seg - Sex: 08:00 às 20:00</div>
+                <div>Sáb: 08:00 às 16:00</div>
+                <div>Dom: Fechada</div>
+              </li>
+              <li className="pt-1">
+                <a href="mailto:nascimentodasilva4@gmail.com" className="text-gray-medium hover:text-primary transition-colors text-sm">
+                  nascimentodasilva4@gmail.com
                 </a>
               </li>
             </ul>

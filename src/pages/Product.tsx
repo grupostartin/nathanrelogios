@@ -31,7 +31,7 @@ export default function Product() {
   const whatsappMessage = product
     ? `Olá, tenho interesse no relógio Citizen ${product.name} (Ref: ${product.reference}). Poderia me passar mais informações sobre disponibilidade e formas de pagamento?`
     : '';
-  const whatsappUrl = `https://wa.me/5511999999999?text=${encodeURIComponent(whatsappMessage)}`;
+  const whatsappUrl = `https://wa.me/5531986952057?text=${encodeURIComponent(whatsappMessage)}`;
 
   if (loading) {
     return (

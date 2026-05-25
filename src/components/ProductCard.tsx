@@ -19,7 +19,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const whatsappMessage = `Olá, tenho interesse no relógio Citizen ${product.name} (Ref: ${product.reference}). Poderia me passar mais informações sobre disponibilidade e formas de pagamento?`;
-  const whatsappUrl = `https://wa.me/5511999999999?text=${encodeURIComponent(whatsappMessage)}`;
+  const whatsappUrl = `https://wa.me/5531986952057?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
     <div className="group flex flex-col h-full bg-secondary border border-transparent hover:border-gray-light transition-colors duration-300">

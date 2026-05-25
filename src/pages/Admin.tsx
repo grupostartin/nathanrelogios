@@ -721,6 +721,7 @@ export default function Admin() {
         ) : activeTab === 'home' ? (
           <HomeEditor
             sections={sections}
+            products={products}
             onRefresh={fetchSections}
           />
         ) : (
@@ -1365,15 +1366,60 @@ const SECTION_LABELS: Record<string, string> = {
 
 interface HomeEditorProps {
   sections: HomeSection[];
+  products: Product[];
   onRefresh: () => void;
 }
 
-function HomeEditor({ sections, onRefresh }: HomeEditorProps) {
+function HomeEditor({ sections, products, onRefresh }: HomeEditorProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [localEdits, setLocalEdits] = useState<Partial<HomeSection>>({});
   const [embedCode, setEmbedCode] = useState('');
   const [configJson, setConfigJson] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  function handleToggleProduct(productId: string, isChecked: boolean) {
+    let parsed: any = {};
+    try {
+      parsed = JSON.parse(configJson);
+    } catch (e) {
+      parsed = {};
+    }
+    let selected = Array.isArray(parsed.productIds) ? [...parsed.productIds] : [];
+    
+    if (isChecked) {
+      if (!selected.includes(productId)) {
+        selected.push(productId);
+      }
+    } else {
+      selected = selected.filter((id: string) => id !== productId);
+    }
+    
+    parsed.productIds = selected;
+    setConfigJson(JSON.stringify(parsed, null, 2));
+  }
+
+  function handleReorderProduct(productId: string, direction: -1 | 1) {
+    let parsed: any = {};
+    try {
+      parsed = JSON.parse(configJson);
+    } catch (e) {
+      parsed = {};
+    }
+    let selected = Array.isArray(parsed.productIds) ? [...parsed.productIds] : [];
+    const idx = selected.indexOf(productId);
+    if (idx === -1) return;
+    
+    const targetIdx = idx + direction;
+    if (targetIdx < 0 || targetIdx >= selected.length) return;
+    
+    const temp = selected[idx];
+    selected[idx] = selected[targetIdx];
+    selected[targetIdx] = temp;
+    
+    parsed.productIds = selected;
+    setConfigJson(JSON.stringify(parsed, null, 2));
+  }
 
   function startEdit(s: HomeSection) {
     setEditingId(s.id);
@@ -1577,6 +1623,118 @@ function HomeEditor({ sections, onRefresh }: HomeEditorProps) {
                       </div>
                     )}
                     
+                    {s.type === 'featured_products' && (
+                      <div className="md:col-span-2 border border-gray-light bg-secondary p-5 space-y-4">
+                        <label className="label-caps text-gray-medium block">Selecionar Relógios da Coleção</label>
+                        <p className="font-sans text-[11px] text-gray-medium">
+                          Marque os relógios que deseja exibir nesta seção. Você também pode ordenar e reordenar a ordem de exibição na lista abaixo.
+                        </p>
+                        
+                        <input
+                          type="text"
+                          placeholder="Buscar relógio por nome ou referência..."
+                          value={searchTerm}
+                          onChange={e => setSearchTerm(e.target.value)}
+                          className="w-full border border-gray-light bg-white px-4 py-2.5 font-sans text-xs outline-none focus:border-primary"
+                        />
+                        
+                        <div className="border border-gray-light bg-white h-48 overflow-y-auto divide-y divide-gray-light">
+                          {products
+                            .filter(p => {
+                              const term = searchTerm.toLowerCase();
+                              return p.name.toLowerCase().includes(term) || p.reference.toLowerCase().includes(term);
+                            })
+                            .map(p => {
+                              let parsed: any = {};
+                              try { parsed = JSON.parse(configJson); } catch (e) {}
+                              const selected = Array.isArray(parsed.productIds) ? parsed.productIds : [];
+                              const isChecked = selected.includes(p.id);
+                              
+                              return (
+                                <div key={p.id} className="flex items-center justify-between p-2 hover:bg-offwhite transition-colors">
+                                  <div className="flex items-center gap-3">
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={e => handleToggleProduct(p.id, e.target.checked)}
+                                      className="w-4 h-4 text-gold border-gray-light focus:ring-0 cursor-pointer"
+                                    />
+                                    <div className="w-8 h-8 bg-offwhite border border-gray-light overflow-hidden flex-shrink-0">
+                                      {p.images?.[0] && (
+                                        <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover mix-blend-multiply" />
+                                      )}
+                                    </div>
+                                    <div>
+                                      <p className="font-sans text-xs font-semibold text-primary">{p.name}</p>
+                                      <p className="font-mono text-[9px] text-gray-medium">{p.reference}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                        </div>
+                        
+                        {(() => {
+                          let parsed: any = {};
+                          try { parsed = JSON.parse(configJson); } catch (e) {}
+                          const selected = Array.isArray(parsed.productIds) ? parsed.productIds : [];
+                          
+                          if (selected.length === 0) return null;
+                          
+                          return (
+                            <div className="space-y-2 mt-4 pt-4 border-t border-gray-light">
+                              <label className="label-caps text-gray-medium block text-xs">Ordem de Exibição ({selected.length} selecionados)</label>
+                              <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                                {selected.map((id, index) => {
+                                  const prod = products.find(p => p.id === id);
+                                  if (!prod) return null;
+                                  
+                                  return (
+                                    <div key={id} className="flex items-center justify-between bg-white border border-gray-light p-2 text-xs">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-mono text-[9px] text-gray-medium bg-primary/5 px-1.5 py-0.5">{index + 1}</span>
+                                        <div className="w-6 h-6 bg-offwhite border border-gray-light overflow-hidden flex-shrink-0">
+                                          {prod.images?.[0] && (
+                                            <img src={prod.images[0]} alt={prod.name} className="w-full h-full object-cover mix-blend-multiply" />
+                                          )}
+                                        </div>
+                                        <span className="font-sans font-medium truncate max-w-[200px]">{prod.name}</span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleReorderProduct(id, -1)}
+                                          disabled={index === 0}
+                                          className="p-1 hover:bg-offwhite text-gray-medium hover:text-primary disabled:opacity-20 transition-colors"
+                                        >
+                                          ▲
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleReorderProduct(id, 1)}
+                                          disabled={index === selected.length - 1}
+                                          className="p-1 hover:bg-offwhite text-gray-medium hover:text-primary disabled:opacity-20 transition-colors"
+                                        >
+                                          ▼
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleToggleProduct(id, false)}
+                                          className="ml-2 px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] uppercase font-semibold transition-colors"
+                                        >
+                                          Remover
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+
                     {['featured_products', 'flash_sale', 'category_grid', 'trust_bar'].includes(s.type) && (
                       <div className="md:col-span-2">
                         <label className="label-caps text-gray-medium block mb-2">Configuração Avançada (JSON)</label>

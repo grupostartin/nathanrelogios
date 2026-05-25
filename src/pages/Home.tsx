@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, Loader2, SlidersHorizontal, X, Instagram } from 'lucide-react';
+import { ArrowRight, Loader2, SlidersHorizontal, X, Instagram, ShieldCheck, CreditCard, Award } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import ProductCard from '../components/ProductCard';
 import { supabase } from '../lib/supabase';
-import { Product } from '../data/products';
+import { Product, normalizeProduct } from '../data/products';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Category {
@@ -161,24 +161,43 @@ function HeroSection({ s }: { s: HomeSection; key?: string }) {
 // 2. Trust Bar
 function TrustBar({ s }: { s: HomeSection; key?: string }) {
   const items = s.config?.items || [
-    { text: 'Entrega Segura' },
-    { text: 'Parcelamento em até 10x' },
-    { text: 'Autenticidade Garantida' },
-    { text: 'Especialista Citizen' }
+    { icon: 'ShieldCheck', text: 'AUTENTICIDADE CITIZEN 100% GARANTIDA' },
+    { icon: 'CreditCard', text: 'PARCELAMENTO EM ATÉ 12X NO CARTÃO' },
+    { icon: 'Award', text: 'SELEÇÃO CURADA DE MODELOS EXCLUSIVOS' }
   ];
+
+  function getIcon(name: string) {
+    switch (name) {
+      case 'ShieldCheck': return <ShieldCheck className="w-4.5 h-4.5 text-gold shrink-0" />;
+      case 'CreditCard':  return <CreditCard className="w-4.5 h-4.5 text-gold shrink-0" />;
+      case 'Award':       return <Award className="w-4.5 h-4.5 text-gold shrink-0" />;
+      default:            return <ShieldCheck className="w-4.5 h-4.5 text-gold shrink-0" />;
+    }
+  }
+
   return (
-    <div className="bg-primary text-secondary border-b border-white/5">
-      <div className="max-w-[1440px] mx-auto px-6 lg:px-16 py-4 flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-8 md:gap-12 font-sans text-[10px] uppercase tracking-[0.2em] text-secondary/60 flex-wrap">
+    <div className="border-y border-gold/15 bg-gradient-to-r from-primary via-[#0B0D17] to-primary text-secondary overflow-hidden">
+      <div className="max-w-[1440px] mx-auto px-6 lg:px-16 py-4.5 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 lg:gap-12 flex-wrap text-center sm:text-left">
           {items.map((item: any, i: number) => (
-            <span key={i} className="flex items-center gap-2">
-              <span className="w-1 h-1 bg-gold rounded-full" />
-              {item.text}
-            </span>
+            <div 
+              key={i} 
+              className="flex items-center gap-3 font-sans text-[11px] font-semibold tracking-[0.16em] text-white/90 hover:text-gold transition-colors duration-300"
+            >
+              {getIcon(item.icon)}
+              <span>{item.text.toUpperCase()}</span>
+            </div>
           ))}
         </div>
-        <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer" className="font-sans text-[10px] uppercase tracking-[0.2em] text-gold hover:text-white transition-colors flex items-center gap-1.5">
-          Consultoria <ArrowRight className="w-3.5 h-3.5" />
+        
+        <a 
+          href="https://wa.me/5531986952057" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-gold hover:text-white transition-all duration-300 flex items-center gap-1.5 group border-b border-gold/40 hover:border-white pb-1"
+        >
+          Consultoria WhatsApp 
+          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1 duration-300" />
         </a>
       </div>
     </div>
@@ -187,10 +206,44 @@ function TrustBar({ s }: { s: HomeSection; key?: string }) {
 
 // 3. Featured Products (Destaques)
 function FeaturedProducts({ s }: { s: HomeSection; key?: string }) {
-  const { products, loading } = useProducts({ isBestseller: true });
-  
-  if (loading) return null;
-  const visible = products.slice(0, s.config?.columns || 4);
+  const { products: fallbackProducts, loading: fallbackLoading } = useProducts({ isBestseller: true });
+  const [customProducts, setCustomProducts] = useState<Product[]>([]);
+  const [customLoading, setCustomLoading] = useState(false);
+
+  const hasCustomIds = Array.isArray(s.config?.productIds) && s.config.productIds.length > 0;
+
+  useEffect(() => {
+    if (hasCustomIds) {
+      setCustomLoading(true);
+      supabase
+        .from('products')
+        .select('*')
+        .in('id', s.config.productIds)
+        .eq('active', true)
+        .then(({ data, error }) => {
+          if (data && !error) {
+            const normalized = data.map(p => normalizeProduct(p));
+            // Sort to match the order in productIds
+            normalized.sort((a, b) => {
+              return s.config.productIds.indexOf(a.id) - s.config.productIds.indexOf(b.id);
+            });
+            setCustomProducts(normalized);
+          }
+          setCustomLoading(false);
+        });
+    }
+  }, [s.config?.productIds, hasCustomIds]);
+
+  const isLoading = hasCustomIds ? customLoading : fallbackLoading;
+  if (isLoading) return null;
+
+  const displayProducts = hasCustomIds ? customProducts : fallbackProducts;
+  const visible = displayProducts.slice(0, s.config?.columns || 4);
+
+  if (visible.length === 0) return null;
+
+  const cols = s.config?.columns || 4;
+  const gridColsClass = cols === 3 ? 'md:grid-cols-3' : cols === 2 ? 'md:grid-cols-2' : 'md:grid-cols-4';
 
   return (
     <section className="py-24 bg-secondary overflow-hidden border-b border-gray-light">
@@ -207,7 +260,7 @@ function FeaturedProducts({ s }: { s: HomeSection; key?: string }) {
             </Link>
           )}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-10">
+        <div className={`grid grid-cols-2 ${gridColsClass} gap-6 lg:gap-10`}>
           {visible.map(p => <ProductCard key={p.id} product={p} />)}
         </div>
       </div>
@@ -293,6 +346,26 @@ function BannerSplit({ s }: { s: HomeSection; key?: string }) {
 // 7. Instagram
 function InstagramFeed({ s }: { s: HomeSection; key?: string }) {
   const embedCode = s.config?.embedCode;
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!embedCode || !containerRef.current) return;
+
+    // Clear previous contents
+    containerRef.current.innerHTML = '';
+
+    try {
+      // Use createContextualFragment to parse and execute scripts inside the embed HTML
+      const range = document.createRange();
+      const fragment = range.createContextualFragment(embedCode);
+      containerRef.current.appendChild(fragment);
+    } catch (err) {
+      console.error('Error executing Instagram embed scripts:', err);
+      // Fallback to dangerouslySetInnerHTML behavior in case of errors
+      containerRef.current.innerHTML = embedCode;
+    }
+  }, [embedCode]);
+
   return (
     <section className="py-20 bg-secondary border-t border-gray-light">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-16 text-center">
@@ -300,7 +373,7 @@ function InstagramFeed({ s }: { s: HomeSection; key?: string }) {
         <h2 className="font-serif text-3xl mb-12">{s.title || 'Nos Siga no Instagram'}</h2>
         
         {embedCode ? (
-          <div className="instagram-container" dangerouslySetInnerHTML={{ __html: embedCode }} />
+          <div ref={containerRef} className="instagram-container" />
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
             {(s.config?.images || []).map((img: string, i: number) => (

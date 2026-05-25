@@ -44,7 +44,7 @@ export default function Navbar() {
               <Search className="w-5 h-5 stroke-[1.5]" />
             </button>
             <a
-              href="https://wa.me/5511999999999?text=Olá,%20gostaria%20de%20ajuda%20para%20escolher%20um%20relógio%20Citizen."
+              href="https://wa.me/5531986952057?text=Olá,%20gostaria%20de%20ajuda%20para%20escolher%20um%20relógio%20Citizen."
               target="_blank"
               rel="noopener noreferrer"
               className="hidden md:flex items-center justify-center px-6 py-3 bg-primary text-secondary text-[12px] tracking-widest uppercase font-semibold hover:bg-gold transition-colors duration-300"
@@ -84,7 +84,7 @@ export default function Navbar() {
 
           <div className="pt-8 mt-8 border-t border-gray-light">
             <a
-              href="https://wa.me/5511999999999?text=Olá,%20gostaria%20de%20ajuda%20para%20escolher%20um%20relógio%20Citizen."
+              href="https://wa.me/5531986952057?text=Olá,%20gostaria%20de%20ajuda%20para%20escolher%20um%20relógio%20Citizen."
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center w-full px-6 py-4 border border-gold text-gold text-sm tracking-widest uppercase font-semibold hover:bg-gold hover:text-secondary transition-colors duration-300"
