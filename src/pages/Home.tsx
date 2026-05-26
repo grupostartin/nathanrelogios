@@ -5,7 +5,7 @@ import { ArrowRight, Loader2, SlidersHorizontal, X, Instagram, ShieldCheck, Cred
 import { useProducts } from '../hooks/useProducts';
 import ProductCard from '../components/ProductCard';
 import { supabase } from '../lib/supabase';
-import { Product, normalizeProduct } from '../data/products';
+import { Product, normalizeProduct, formatPrice } from '../data/products';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Category {
@@ -270,22 +270,51 @@ function FeaturedProducts({ s }: { s: HomeSection; key?: string }) {
 
 // 4. Flash Sale
 function FlashSale({ s }: { s: HomeSection; key?: string }) {
+  const [product, setProduct] = useState<Product | null>(null);
+  const [, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (s.config?.productId) {
+      setLoading(true);
+      supabase
+        .from('products')
+        .select('*')
+        .eq('id', s.config.productId)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) setProduct(normalizeProduct(data));
+          setLoading(false);
+        });
+    } else {
+      setProduct(null);
+    }
+  }, [s.config?.productId]);
+
+  const title = product ? `Oferta da Semana: ${product.name}` : s.title;
+  const originalPrice = product?.oldPrice || (product ? product.price * 1.15 : 0);
+  const subtitle = product 
+    ? `De ${formatPrice(originalPrice)} por apenas ${formatPrice(product.price)}. Edição limitada em estoque.` 
+    : s.subtitle;
+  const image = product?.images?.[0] || s.image_url || s.config?.image;
+  const ctaUrl = product ? `/produto/${product.id}` : (s.cta_url || '#');
+  const ctaLabel = s.cta_label || 'Aproveitar Oferta';
+
   return (
     <section className="py-16 bg-black text-white relative overflow-hidden group">
-      {s.config?.image && (
+      {image && (
         <div className="absolute inset-0 opacity-40 group-hover:scale-105 transition-transform duration-1000">
-          <img src={s.config.image} alt="Flash Sale" className="w-full h-full object-cover" />
+          <img src={image} alt="Flash Sale" className="w-full h-full object-cover" />
         </div>
       )}
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
       <div className="relative z-10 max-w-[1440px] mx-auto px-6 lg:px-16">
         <div className="max-w-xl">
           {s.label && <span className="label-caps text-gold mb-4 block animate-pulse">{s.label}</span>}
-          <h2 className="font-serif text-3xl md:text-5xl mb-4 leading-tight">{s.title}</h2>
-          <p className="font-sans text-white/70 text-base md:text-lg mb-8">{s.subtitle}</p>
-          {s.cta_label && (
-            <Link to={s.cta_url || '#'} className="inline-block bg-gold text-primary px-8 py-4 font-sans uppercase text-xs font-bold tracking-widest hover:bg-white transition-colors">
-              {s.cta_label}
+          <h2 className="font-serif text-3xl md:text-5xl mb-4 leading-tight">{title}</h2>
+          <p className="font-sans text-white/70 text-base md:text-lg mb-8">{subtitle}</p>
+          {ctaLabel && (
+            <Link to={ctaUrl} className="inline-block bg-gold text-primary px-8 py-4 font-sans uppercase text-xs font-bold tracking-widest hover:bg-white transition-colors">
+              {ctaLabel}
             </Link>
           )}
         </div>

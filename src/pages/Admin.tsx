@@ -1735,6 +1735,60 @@ function HomeEditor({ sections, products, onRefresh }: HomeEditorProps) {
                       </div>
                     )}
 
+                    {s.type === 'flash_sale' && (
+                      <div className="md:col-span-2 border border-gray-light bg-secondary p-5 space-y-4">
+                        <label className="label-caps text-gray-medium block">Selecionar Relógio da Oferta</label>
+                        <p className="font-sans text-[11px] text-gray-medium">
+                          Selecione o relógio que será exibido no Banner de Oferta (Flash Sale). Os dados de título, preços, imagem e link serão vinculados a este relógio automaticamente.
+                        </p>
+                        
+                        <select
+                          value={(() => {
+                            let parsed: any = {};
+                            try { parsed = JSON.parse(configJson); } catch (e) {}
+                            return parsed.productId || '';
+                          })()}
+                          onChange={e => {
+                            let parsed: any = {};
+                            try { parsed = JSON.parse(configJson); } catch (e) {}
+                            parsed.productId = e.target.value || null;
+                            setConfigJson(JSON.stringify(parsed, null, 2));
+                          }}
+                          className="w-full border border-gray-light bg-white px-4 py-3 font-sans text-sm outline-none focus:border-primary"
+                        >
+                          <option value="">Nenhum relógio selecionado (usar textos manuais)</option>
+                          {products.map(p => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} ({p.reference}) - {formatPrice(p.price)}
+                            </option>
+                          ))}
+                        </select>
+
+                        {(() => {
+                          let parsed: any = {};
+                          try { parsed = JSON.parse(configJson); } catch (e) {}
+                          const selectedId = parsed.productId;
+                          if (!selectedId) return null;
+                          const prod = products.find(p => p.id === selectedId);
+                          if (!prod) return null;
+                          
+                          return (
+                            <div className="flex items-center gap-3 bg-white border border-gray-light p-3 mt-3">
+                              <div className="w-12 h-12 bg-offwhite border border-gray-light overflow-hidden flex-shrink-0">
+                                {prod.images?.[0] && (
+                                  <img src={prod.images[0]} alt={prod.name} className="w-full h-full object-cover mix-blend-multiply" />
+                                )}
+                              </div>
+                              <div>
+                                <p className="font-sans text-xs font-semibold text-primary">{prod.name}</p>
+                                <p className="font-mono text-[9px] text-gray-medium">{prod.reference} · {formatPrice(prod.price)}</p>
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+
                     {['featured_products', 'flash_sale', 'category_grid', 'trust_bar'].includes(s.type) && (
                       <div className="md:col-span-2">
                         <label className="label-caps text-gray-medium block mb-2">Configuração Avançada (JSON)</label>
