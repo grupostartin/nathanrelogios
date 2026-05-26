@@ -44,7 +44,7 @@ export default function Contact() {
               <Instagram className="w-6 h-6 text-primary shrink-0 mt-1 stroke-[1.5]" />
               <div>
                 <h4 className="label-caps text-gray-medium mb-2">Instagram</h4>
-                <a href="https://instagram.com/nathanrelogios" target="_blank" rel="noopener noreferrer" className="font-serif text-xl hover:text-gold transition-colors">
+                <a href="https://instagram.com/nathan_relogios" target="_blank" rel="noopener noreferrer" className="font-serif text-xl hover:text-gold transition-colors">
                   @nathan_relogios
                 </a>
               </div>

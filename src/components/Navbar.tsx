@@ -29,7 +29,7 @@ export default function Navbar() {
               <span className="absolute -bottom-1 left-0 w-0 h-px bg-gold transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link to="/sobre" className="font-serif tracking-widest uppercase text-sm hover:text-gold transition-colors duration-300 relative group">
-              Sobre a loja
+              Sobre Nós
               <span className="absolute -bottom-1 left-0 w-0 h-px bg-gold transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link to="/contato" className="font-serif tracking-widest uppercase text-sm hover:text-gold transition-colors duration-300 relative group">
@@ -79,7 +79,7 @@ export default function Navbar() {
         </div>
         <div className="flex flex-col p-6 space-y-8">
           <Link to="/catalogo" onClick={() => setIsMobileMenuOpen(false)} className="font-serif tracking-widest uppercase text-xl">Relógios</Link>
-          <Link to="/sobre" onClick={() => setIsMobileMenuOpen(false)} className="font-serif tracking-widest uppercase text-xl">A Boutique</Link>
+          <Link to="/sobre" onClick={() => setIsMobileMenuOpen(false)} className="font-serif tracking-widest uppercase text-xl">Sobre Nós</Link>
           <Link to="/contato" onClick={() => setIsMobileMenuOpen(false)} className="font-serif tracking-widest uppercase text-xl">Contato</Link>
 
           <div className="pt-8 mt-8 border-t border-gray-light">
