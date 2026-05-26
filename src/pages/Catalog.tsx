@@ -8,6 +8,7 @@ export default function Catalog() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeGender, setActiveGender] = useState<string | null>(null);
   const [activeUsed, setActiveUsed] = useState<boolean | null>(null);
+  const [sortBy, setSortBy] = useState<string>('recent');
 
   const { products, loading, error } = useProducts({
     category: activeCategory,
@@ -20,6 +21,25 @@ export default function Catalog() {
 
   const categories = Array.from(new Set(allProducts.map(p => p.category)));
   const genders = Array.from(new Set(allProducts.map(p => p.gender)));
+
+  const sortedProducts = [...products].sort((a, b) => {
+    switch (sortBy) {
+      case 'name-asc':
+        return a.name.localeCompare(b.name, 'pt-BR');
+      case 'name-desc':
+        return b.name.localeCompare(a.name, 'pt-BR');
+      case 'price-asc':
+        return a.price - b.price;
+      case 'price-desc':
+        return b.price - a.price;
+      case 'recent':
+      default:
+        if (a.created_at && b.created_at) {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        }
+        return 0;
+    }
+  });
 
   return (
     <main className="flex flex-col min-h-screen bg-secondary">
@@ -144,11 +164,27 @@ export default function Catalog() {
 
           {!loading && !error && products.length > 0 && (
             <>
-              <p className="font-sans text-xs text-gray-medium uppercase tracking-widest mb-8">
-                {products.length} {products.length === 1 ? 'modelo' : 'modelos'} encontrado{products.length !== 1 ? 's' : ''}
-              </p>
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8 border-b border-gray-light pb-4">
+                <p className="font-sans text-xs text-gray-medium uppercase tracking-widest">
+                  {products.length} {products.length === 1 ? 'modelo' : 'modelos'} encontrado{products.length !== 1 ? 's' : ''}
+                </p>
+                <div className="flex items-center gap-3">
+                  <span className="font-sans text-[10px] text-gray-medium uppercase tracking-widest shrink-0">Ordenar por:</span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="bg-transparent text-[11px] font-sans uppercase tracking-wider text-primary border-b border-gold/40 focus:border-gold py-1 px-1 outline-none cursor-pointer hover:border-gold transition-colors"
+                  >
+                    <option value="recent" className="bg-secondary text-primary">Mais Recentes</option>
+                    <option value="name-asc" className="bg-secondary text-primary">Nome: A - Z</option>
+                    <option value="name-desc" className="bg-secondary text-primary">Nome: Z - A</option>
+                    <option value="price-asc" className="bg-secondary text-primary">Preço: Menor para Maior</option>
+                    <option value="price-desc" className="bg-secondary text-primary">Preço: Maior para Menor</option>
+                  </select>
+                </div>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {products.map((product) => (
+                {sortedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
