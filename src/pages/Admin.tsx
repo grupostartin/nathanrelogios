@@ -71,7 +71,7 @@ const emptyForm = {
   dial_color: '',
   water_resistance: '',
   case_size: '',
-  thickness: '',
+  thickness: '1 ano',
   images: [] as string[],
   description: '',
   is_new: false,
@@ -366,10 +366,10 @@ export default function Admin() {
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center px-6">
-        <div className="w-full max-w-sm bg-secondary p-10 shadow-2xl">
+        <div className="w-full max-w-sm bg-secondary p-6 sm:p-10 shadow-2xl">
           <div className="text-center mb-10">
             <span className="label-caps text-gold block mb-3">Nathan Relógios</span>
-            <h1 className="font-serif text-3xl">Painel Admin</h1>
+            <h1 className="font-serif text-2xl sm:text-3xl">Painel Admin</h1>
             <p className="font-sans text-xs text-gray-medium mt-2 tracking-wider">Acesso restrito</p>
           </div>
           <form onSubmit={handleLogin} className="flex flex-col gap-5">
@@ -474,8 +474,7 @@ export default function Admin() {
                 <Field label="Material da Pulseira" name="strap_material" value={form.strap_material} onChange={handleChange} placeholder="Ex: Borracha" />
                 <Field label="Cor do Mostrador" name="dial_color" value={form.dial_color} onChange={handleChange} placeholder="Ex: Preto" />
                 <Field label="Resistência à Água" name="water_resistance" value={form.water_resistance} onChange={handleChange} placeholder="Ex: 200m / 20 ATM" />
-                <Field label="Tamanho da Caixa" name="case_size" value={form.case_size} onChange={handleChange} placeholder="Ex: 46mm" />
-                <Field label="Espessura" name="thickness" value={form.thickness} onChange={handleChange} placeholder="Ex: 16mm" />
+                <Field label="Garantia" name="thickness" value={form.thickness} onChange={handleChange} placeholder="Ex: 1 ano" />
               </div>
             </div>
 
@@ -610,53 +609,67 @@ export default function Admin() {
   return (
     <>
       {SoldModal}
-      <div className="min-h-screen bg-offwhite">
-      <header className="bg-secondary border-b border-gray-light px-6 lg:px-16 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Package className="w-5 h-5 text-gold" />
-          <h1 className="font-serif text-xl">Nathan Relógios Admin</h1>
+      <div className="min-h-screen bg-offwhite pb-24 md:pb-0">
+      <header className="bg-secondary border-b border-gray-light px-4 md:px-16 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Package className="w-5 h-5 text-gold shrink-0" />
+          <h1 className="font-serif text-lg md:text-xl">
+            <span className="hidden sm:inline">Nathan Relógios Admin</span>
+            <span className="sm:hidden">Nathan Admin</span>
+          </h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           {activeTab === 'products' && (
             <button
               onClick={openNew}
-              className="flex items-center gap-2 bg-primary text-secondary px-5 py-2.5 font-sans uppercase text-xs tracking-widest font-semibold hover:bg-gold transition-colors duration-300"
+              className="flex items-center gap-1.5 bg-primary text-secondary px-3 py-2 sm:px-5 sm:py-2.5 font-sans uppercase text-[10px] sm:text-xs tracking-widest font-semibold hover:bg-gold transition-colors duration-300"
+              title="Novo Produto"
             >
-              <Plus className="w-4 h-4" />
-              Novo Produto
+              <Plus className="w-3.5 h-3.5" />
+              <span className="hidden xs:inline">Novo</span>
             </button>
           )}
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 border border-gray-light text-gray-medium hover:border-primary hover:text-primary px-4 py-2.5 text-xs uppercase tracking-widest transition-colors font-sans"
+            className="flex items-center gap-1 sm:gap-2 border border-gray-light text-gray-medium hover:border-primary hover:text-primary px-2.5 py-2 sm:px-4 sm:py-2.5 text-[10px] sm:text-xs uppercase tracking-widest transition-colors font-sans"
+            title="Voltar à Loja"
           >
-            <ChevronLeft className="w-4 h-4" />
-            Voltar à Loja
+            <ChevronLeft className="w-3.5 h-3.5 shrink-0" />
+            <span className="hidden sm:inline">Voltar à Loja</span>
+            <span className="sm:hidden">Loja</span>
           </button>
           <button
             onClick={() => { setAuthenticated(false); setPasswordInput(''); }}
-            className="flex items-center gap-2 text-gray-medium hover:text-primary text-xs uppercase tracking-widest transition-colors"
+            className="flex items-center gap-1 sm:gap-2 text-gray-medium hover:text-primary px-2.5 py-2 text-[10px] sm:text-xs uppercase tracking-widest transition-colors font-sans"
+            title="Sair"
           >
-            <LogOut className="w-4 h-4" />
-            Sair
+            <LogOut className="w-3.5 h-3.5 shrink-0" />
+            <span className="hidden sm:inline">Sair</span>
           </button>
         </div>
       </header>
 
-      {/* Tab navigation */}
-      <div className="bg-secondary border-b border-gray-light px-6 lg:px-16">
-        <nav className="flex gap-0 overflow-x-auto">
-          {([['dashboard', 'Dashboard'], ['products', 'Produtos'], ['categories', 'Categorias'], ['home', 'Página Inicial'], ['leads', 'Leads']] as const).map(([tab, label]) => (
+      {/* Tab navigation (Desktop Only) */}
+      <div className="hidden md:block bg-secondary border-b border-gray-light px-4 md:px-16 overflow-x-auto no-scrollbar">
+        <nav className="flex gap-1 py-2 min-w-max md:min-w-0">
+          {([
+            ['dashboard', 'Dashboard', LayoutDashboard],
+            ['products', 'Produtos', Package],
+            ['categories', 'Categorias', Tag],
+            ['home', 'Página Inicial', Layout],
+            ['leads', 'Leads', Mail]
+          ] as const).map(([tab, label, Icon]) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`py-4 px-5 font-sans text-xs uppercase tracking-widest font-semibold border-b-2 transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-2 py-3 px-4 font-sans text-xs uppercase tracking-widest font-semibold border-b-2 transition-all duration-300 ${
                 activeTab === tab
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-medium hover:text-primary'
+                  ? 'border-primary text-primary bg-primary/5'
+                  : 'border-transparent text-gray-medium hover:text-primary hover:bg-gray-50'
               }`}
             >
-              {label}
+              <Icon className="w-4 h-4 shrink-0" />
+              <span>{label}</span>
             </button>
           ))}
         </nav>
@@ -746,106 +759,185 @@ export default function Admin() {
             <Loader2 className="w-10 h-10 text-gold animate-spin" />
           </div>
         ) : (
-          <div className="bg-secondary border border-gray-light overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-offwhite border-b border-gray-light">
-                <tr>
-                  <th className="text-left px-6 py-4 label-caps text-gray-medium">Produto</th>
-                  <th className="text-left px-6 py-4 label-caps text-gray-medium hidden md:table-cell">Referência</th>
-                  <th className="text-left px-6 py-4 label-caps text-gray-medium hidden lg:table-cell">Categoria</th>
-                  <th className="text-right px-6 py-4 label-caps text-gray-medium">Preço</th>
-                  <th className="text-center px-6 py-4 label-caps text-gray-medium">Status</th>
-                  <th className="text-right px-6 py-4 label-caps text-gray-medium">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-light">
-                {products.map(product => (
-                  <tr key={product.id} className="hover:bg-offwhite/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 shrink-0 bg-offwhite border border-gray-light overflow-hidden hidden sm:block">
-                          <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover mix-blend-multiply" />
-                        </div>
-                        <div>
-                          <p className="font-sans text-sm font-medium text-primary">{product.name}</p>
-                          <div className="flex flex-wrap gap-1.5 mt-1">
-                            {product.is_new && <span className="font-sans text-[9px] uppercase tracking-widest bg-primary text-secondary px-2 py-0.5">Novo</span>}
-                            {product.is_bestseller && <span className="font-sans text-[9px] uppercase tracking-widest bg-gold text-secondary px-2 py-0.5">Destaque</span>}
-                            {product.is_used && (
-                              <span className={`font-sans text-[9px] uppercase tracking-widest px-2 py-0.5 border ${
-                                conditionStyle(product.condition ?? '').badge
-                              }`}>
-                                {product.condition ?? 'Usado'}
-                              </span>
-                            )}
+          <div className="flex flex-col gap-6">
+            {/* Mobile Cards View */}
+            <div className="flex flex-col gap-4 md:hidden">
+              {products.map(product => (
+                <div key={product.id} className="bg-secondary border border-gray-light p-5 flex flex-col gap-4 shadow-sm">
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 shrink-0 bg-offwhite border border-gray-light overflow-hidden flex items-center justify-center p-1">
+                      <img src={product.images[0]} alt={product.name} className="w-full h-full object-contain mix-blend-multiply" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-sans text-sm font-semibold text-primary leading-tight">{product.name}</p>
+                      <p className="font-mono text-[10px] text-gray-medium mt-1 uppercase tracking-wider">{product.reference}</p>
+                      <p className="font-sans text-xs text-gray-medium mt-0.5">{product.category} · {product.gender}</p>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {product.is_new && <span className="font-sans text-[8px] uppercase tracking-widest bg-primary text-secondary px-1.5 py-0.5 font-bold">Novo</span>}
+                        {product.is_bestseller && <span className="font-sans text-[8px] uppercase tracking-widest bg-gold text-secondary px-1.5 py-0.5 font-bold">Destaque</span>}
+                        {product.is_used && (
+                          <span className={`font-sans text-[8px] uppercase tracking-widest px-1.5 py-0.5 border font-semibold ${
+                            conditionStyle(product.condition ?? '').badge
+                          }`}>
+                            {product.condition ?? 'Usado'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-gray-light/60 pt-3">
+                    <span className="font-sans text-sm font-semibold text-primary">{formatPrice(product.price)}</span>
+                    <button
+                      onClick={() => toggleActive(product)}
+                      title={product.active ? 'Desativar' : 'Ativar'}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[9px] uppercase tracking-widest font-sans font-bold border transition-all duration-200 ${
+                        product.active
+                          ? 'border-green-300 text-green-700 bg-green-50'
+                          : 'border-gray-light text-gray-medium bg-white'
+                      } ${togglingId === product.id ? 'opacity-50' : ''}`}
+                      disabled={togglingId === product.id}
+                    >
+                      {togglingId === product.id
+                        ? <Loader2 className="w-3 h-3 animate-spin" />
+                        : product.active ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />
+                      }
+                      {product.active ? 'Ativo' : 'Inativo'}
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-gray-light/60 pt-3 gap-2">
+                    <button
+                      onClick={() => setSoldModal(product)}
+                      className="flex-1 py-2 text-center text-[10px] uppercase tracking-widest font-sans font-bold border border-gold text-gold hover:bg-gold hover:text-secondary transition-colors"
+                    >
+                      Vendido
+                    </button>
+                    <button
+                      onClick={() => openEdit(product)}
+                      className="flex items-center justify-center p-2.5 border border-gray-light text-gray-medium hover:text-primary transition-colors"
+                      title="Editar"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => deleteProduct(product.id)}
+                      disabled={deletingId === product.id}
+                      className="flex items-center justify-center p-2.5 border border-gray-light text-gray-medium hover:text-red-500 transition-colors disabled:opacity-40"
+                      title="Excluir permanentemente"
+                    >
+                      {deletingId === product.id
+                        ? <Loader2 className="w-4 h-4 animate-spin" />
+                        : <Trash2 className="w-4 h-4" />
+                      }
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-secondary border border-gray-light overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-offwhite border-b border-gray-light">
+                  <tr>
+                    <th className="text-left px-6 py-4 label-caps text-gray-medium">Produto</th>
+                    <th className="text-left px-6 py-4 label-caps text-gray-medium hidden md:table-cell">Referência</th>
+                    <th className="text-left px-6 py-4 label-caps text-gray-medium hidden lg:table-cell">Categoria</th>
+                    <th className="text-right px-6 py-4 label-caps text-gray-medium">Preço</th>
+                    <th className="text-center px-6 py-4 label-caps text-gray-medium">Status</th>
+                    <th className="text-right px-6 py-4 label-caps text-gray-medium">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-light">
+                  {products.map(product => (
+                    <tr key={product.id} className="hover:bg-offwhite/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 shrink-0 bg-offwhite border border-gray-light overflow-hidden hidden sm:block">
+                            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover mix-blend-multiply" />
+                          </div>
+                          <div>
+                            <p className="font-sans text-sm font-medium text-primary">{product.name}</p>
+                            <div className="flex flex-wrap gap-1.5 mt-1">
+                              {product.is_new && <span className="font-sans text-[9px] uppercase tracking-widest bg-primary text-secondary px-2 py-0.5">Novo</span>}
+                              {product.is_bestseller && <span className="font-sans text-[9px] uppercase tracking-widest bg-gold text-secondary px-2 py-0.5">Destaque</span>}
+                              {product.is_used && (
+                                <span className={`font-sans text-[9px] uppercase tracking-widest px-2 py-0.5 border ${
+                                  conditionStyle(product.condition ?? '').badge
+                                }`}>
+                                  {product.condition ?? 'Usado'}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 hidden md:table-cell">
-                      <span className="font-mono text-xs text-gray-medium">{product.reference}</span>
-                    </td>
-                    <td className="px-6 py-4 hidden lg:table-cell">
-                      <span className="font-sans text-xs text-gray-medium">{product.category} · {product.gender}</span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="font-sans text-sm font-medium">{formatPrice(product.price)}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <button
-                          onClick={() => toggleActive(product)}
-                          title={product.active ? 'Clique para desativar' : 'Clique para ativar'}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] uppercase tracking-widest font-sans font-semibold border transition-all duration-200 ${
-                            product.active
-                              ? 'border-green-300 text-green-700 bg-green-50 hover:bg-red-50 hover:border-red-300 hover:text-red-700'
-                              : 'border-gray-light text-gray-medium bg-white hover:border-green-300 hover:text-green-700 hover:bg-green-50'
-                          } ${togglingId === product.id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          disabled={togglingId === product.id}
-                        >
-                          {togglingId === product.id
-                            ? <Loader2 className="w-3 h-3 animate-spin" />
-                            : product.active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />
-                          }
-                          {togglingId === product.id ? '...' : product.active ? 'Ativo' : 'Inativo'}
-                        </button>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => setSoldModal(product)}
-                          title="Marcar como Vendido"
-                          className="px-3 py-1.5 text-[10px] uppercase tracking-widest font-sans font-semibold border border-gold text-gold hover:bg-gold hover:text-secondary transition-colors"
-                        >
-                          Vendido
-                        </button>
-                        <button
-                          onClick={() => openEdit(product)}
-                          className="p-2 text-gray-medium hover:text-primary transition-colors"
-                          title="Editar"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteProduct(product.id)}
-                          disabled={deletingId === product.id}
-                          className="p-2 text-gray-medium hover:text-red-500 transition-colors disabled:opacity-40"
-                          title="Excluir permanentemente"
-                        >
-                          {deletingId === product.id
-                            ? <Loader2 className="w-4 h-4 animate-spin" />
-                            : <Trash2 className="w-4 h-4" />}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                      <td className="px-6 py-4 hidden md:table-cell">
+                        <span className="font-mono text-xs text-gray-medium">{product.reference}</span>
+                      </td>
+                      <td className="px-6 py-4 hidden lg:table-cell">
+                        <span className="font-sans text-xs text-gray-medium">{product.category} · {product.gender}</span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span className="font-sans text-sm font-medium">{formatPrice(product.price)}</span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            onClick={() => toggleActive(product)}
+                            title={product.active ? 'Clique para desativar' : 'Clique para ativar'}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] uppercase tracking-widest font-sans font-semibold border transition-all duration-200 ${
+                              product.active
+                                ? 'border-green-300 text-green-700 bg-green-50 hover:bg-red-50 hover:border-red-300 hover:text-red-700'
+                                : 'border-gray-light text-gray-medium bg-white hover:border-green-300 hover:text-green-700 hover:bg-green-50'
+                            } ${togglingId === product.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            disabled={togglingId === product.id}
+                          >
+                            {togglingId === product.id
+                              ? <Loader2 className="w-3 h-3 animate-spin" />
+                              : product.active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />
+                            }
+                            {togglingId === product.id ? '...' : product.active ? 'Ativo' : 'Inativo'}
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => setSoldModal(product)}
+                            title="Marcar como Vendido"
+                            className="px-3 py-1.5 text-[10px] uppercase tracking-widest font-sans font-semibold border border-gold text-gold hover:bg-gold hover:text-secondary transition-colors"
+                          >
+                            Vendido
+                          </button>
+                          <button
+                            onClick={() => openEdit(product)}
+                            className="p-2 text-gray-medium hover:text-primary transition-colors"
+                            title="Editar"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteProduct(product.id)}
+                            disabled={deletingId === product.id}
+                            className="p-2 text-gray-medium hover:text-red-500 transition-colors disabled:opacity-40"
+                            title="Excluir permanentemente"
+                          >
+                            {deletingId === product.id
+                              ? <Loader2 className="w-4 h-4 animate-spin" />
+                              : <Trash2 className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             {products.length === 0 && !loading && (
-              <div className="py-24 text-center">
+              <div className="bg-secondary border border-gray-light py-24 text-center">
                 <Package className="w-12 h-12 text-gray-light mx-auto mb-4" />
                 <p className="font-serif text-xl text-gray-medium">Nenhum produto cadastrado.</p>
                 <button
@@ -861,6 +953,39 @@ export default function Admin() {
         </>
         )}
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-secondary border-t border-gray-light shadow-[0_-4px_16px_rgba(0,0,0,0.06)] pb-safe">
+        <nav className="relative flex justify-around items-center h-16">
+          {([
+            ['dashboard', 'Painel', LayoutDashboard],
+            ['products', 'Produtos', Package],
+            ['categories', 'Filtros', Tag],
+            ['home', 'Início', Layout],
+            ['leads', 'Leads', Mail]
+          ] as const).map(([tab, label, Icon]) => {
+            const isActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className="relative flex flex-col items-center justify-center flex-1 h-full font-sans transition-all duration-300"
+              >
+                {isActive && (
+                  <svg viewBox="0 0 60 15" className="absolute -top-[14px] left-1/2 -translate-x-1/2 w-[70px] h-[15px] text-secondary fill-secondary overflow-visible">
+                    <path d="M 0 15 Q 15 15 20 5 Q 30 -5 40 5 Q 45 15 60 15 Z" />
+                    <path d="M 0 15 Q 15 15 20 5 Q 30 -5 40 5 Q 45 15 60 15" fill="none" className="stroke-gold stroke-[2px]" />
+                    <circle cx="30" cy="-6" r="3.5" className="fill-gold" />
+                  </svg>
+                )}
+                <Icon className={`w-5 h-5 shrink-0 transition-colors duration-300 ${isActive ? 'text-gold' : 'text-gray-medium'}`} />
+                <span className={`mt-1 text-[9px] font-bold tracking-wide transition-colors duration-300 ${isActive ? 'text-gold' : 'text-gray-medium'}`}>{label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
     </div>
     </>
   );

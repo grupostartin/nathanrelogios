@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
-    <footer className="bg-secondary border-t border-gray-light pt-16 pb-8">
+    <footer className="site-footer bg-secondary border-t border-gray-light pt-16 pb-8">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
           <div className="md:col-span-2">
@@ -42,14 +42,13 @@ export default function Footer() {
         <div className="pt-12 pb-8 border-t border-gray-light flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex flex-col items-center md:items-start gap-4">
             <p className="text-[10px] text-gray-medium uppercase tracking-[0.2em]">Meios de Pagamento</p>
-            <div className="flex flex-wrap justify-center gap-4 opacity-60">
-              <img src="https://logodownload.org/wp-content/uploads/2014/07/visa-logo-1.png" alt="Visa" className="h-3 object-contain" />
-              <img src="https://logodownload.org/wp-content/uploads/2014/07/mastercard-logo.png" alt="Mastercard" className="h-5 object-contain" />
-              <img src="https://logodownload.org/wp-content/uploads/2020/02/pix-logo-1.png" alt="Pix" className="h-4 object-contain" />
-              <img src="https://logodownload.org/wp-content/uploads/2015/05/elo-logo-1.png" alt="Elo" className="h-3 object-contain" />
-            </div>
+            <img
+              src="https://download.host2b.net/imagem/selo-formasdepagamento.svg"
+              alt="Formas de Pagamento"
+              className="max-w-[2000px] w-full object-contain opacity-85 hover:opacity-100 transition-opacity duration-300"
+            />
           </div>
-          
+
           <div className="text-center md:text-right">
             <p className="text-xs text-gray-medium uppercase tracking-wider mb-2">
               &copy; {new Date().getFullYear()} Citizen Boutique. Nathan Relógios.

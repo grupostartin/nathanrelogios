@@ -18,7 +18,13 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const whatsappMessage = `Olá, tenho interesse no relógio Citizen ${product.name} (Ref: ${product.reference}). Poderia me passar mais informações sobre disponibilidade e formas de pagamento?`;
+  const imageUrl = product.images?.[0]
+    ? (product.images[0].startsWith('http')
+        ? product.images[0]
+        : `${window.location.origin}${product.images[0].startsWith('/') ? '' : '/'}${product.images[0]}`)
+    : '';
+
+  const whatsappMessage = `Olá, tenho interesse no relógio Citizen ${product.name} (Ref: ${product.reference}).\n\nFoto do relógio: ${imageUrl}\n\nPoderia me passar mais informações sobre disponibilidade e formas de pagamento?`;
   const whatsappUrl = `https://wa.me/5531986952057?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (

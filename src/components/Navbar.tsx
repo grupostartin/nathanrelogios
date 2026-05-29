@@ -9,7 +9,7 @@ export default function Navbar() {
     <>
       <div className="w-full bg-primary text-secondary py-2 px-4 text-center">
         <p className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] font-medium">
-          Envio Seguro para todo o Brasil • 10x sem juros no cartão • Compra Garantida
+          Envio Seguro para todo o Brasil • Parcelamos em até 12x no cartão • Compra Garantida
         </p>
       </div>
       <nav className="sticky top-0 z-40 w-full bg-secondary/95 backdrop-blur-md border-b border-gray-light transition-all duration-300">

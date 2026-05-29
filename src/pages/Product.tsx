@@ -28,8 +28,14 @@ export default function Product() {
   });
   const related = relatedProducts.filter(p => p.id !== id).slice(0, 4);
 
+  const imageUrl = product?.images?.[0]
+    ? (product.images[0].startsWith('http')
+        ? product.images[0]
+        : `${window.location.origin}${product.images[0].startsWith('/') ? '' : '/'}${product.images[0]}`)
+    : '';
+
   const whatsappMessage = product
-    ? `Olá, tenho interesse no relógio Citizen ${product.name} (Ref: ${product.reference}). Poderia me passar mais informações sobre disponibilidade e formas de pagamento?`
+    ? `Olá, tenho interesse no relógio Citizen ${product.name} (Ref: ${product.reference}).\n\nFoto do relógio: ${imageUrl}\n\nPoderia me passar mais informações sobre disponibilidade e formas de pagamento?`
     : '';
   const whatsappUrl = `https://wa.me/5531986952057?text=${encodeURIComponent(whatsappMessage)}`;
 
@@ -133,8 +139,7 @@ export default function Product() {
                 { label: 'Caixa / Pulseira', value: `${product.caseMaterial} / ${product.strapMaterial}` },
                 { label: 'Mostrador', value: product.dialColor },
                 { label: 'Resistência à Água', value: product.waterResistance },
-                { label: 'Tamanho / Espessura', value: `${product.caseSize} / ${product.thickness}` },
-                { label: 'Garantia', value: '2 anos de garantia de fábrica' },
+                { label: 'Garantia', value: product.thickness || '1 ano' },
               ].map(spec => (
                 <div key={spec.label} className="grid grid-cols-2 py-4 border-b border-gray-light/50">
                   <span className="font-sans text-xs uppercase tracking-widest text-gray-medium">{spec.label}</span>
