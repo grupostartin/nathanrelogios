@@ -1,8 +1,14 @@
 import { MapPin, Phone, Mail, Instagram } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function Contact() {
   return (
     <main className="flex flex-col min-h-screen bg-secondary">
+      <SEO
+        title="Fale Conosco | Atendimento WhatsApp"
+        description="Entre em contato com a Nathan Relógios & Joias. Fale direto pelo WhatsApp (31) 98695-2057 para tirar dúvidas, saber preços ou solicitar modelos específicos de Citizen."
+        keywords="contato nathan relogios, whatsapp nathan relogios, comprar citizen belo horizonte, telefone nathan relogios"
+      />
       <div className="bg-offwhite py-16 border-b border-gray-light text-center px-6">
         <h1 className="font-serif text-4xl md:text-5xl tracking-[0.02em] mb-4">Contato</h1>
         <p className="font-sans text-gray-medium tracking-wide max-w-xl mx-auto">

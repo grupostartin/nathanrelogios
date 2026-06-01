@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Heart, Shield, Award, Users, Gem, Sparkles, TrendingUp, Clock } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function About() {
   const [showSplash, setShowSplash] = useState(true);
@@ -42,6 +43,11 @@ export default function About() {
 
   return (
     <div className="relative">
+      <SEO
+        title="Quem Somos | História e Tradição"
+        description="Conheça a trajetória da Nathan Relógios & Joias. Fundada em 2020 a partir da paixão por relógios Citizen, hoje somamos mais de 6 anos de história e 1.000+ clientes satisfeitos no Brasil."
+        keywords="historia nathan relogios, sobre nathan relogios, nathan relogios e joias, citizen original brasil"
+      />
       {/* Splash Screen */}
       {showSplash && (
         <div 

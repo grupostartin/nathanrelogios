@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, Loader2, SlidersHorizontal, X, Instagram, ShieldCheck, CreditCard, Award } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import ProductCard from '../components/ProductCard';
+import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { Product, normalizeProduct, formatPrice } from '../data/products';
 
@@ -533,6 +534,47 @@ export default function Home() {
 
   return (
     <main className="flex flex-col min-h-screen">
+      <SEO
+        title="Nathan Relógios & Joias | Especialista Citizen no Brasil"
+        description="Vitrine premium de relógios Citizen originais, novos e seminovos no Brasil. Especialista em Citizen Aqualand, Meia Lua, Eco-Drive e modelos exclusivos com atendimento direto via WhatsApp."
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Store",
+          "name": "Nathan Relógios & Joias",
+          "image": `${window.location.origin}/og-image.png`,
+          "telephone": "+5531986952057",
+          "url": window.location.href,
+          "priceRange": "$$$",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Belo Horizonte",
+            "addressRegion": "MG",
+            "addressCountry": "BR"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "-19.9167",
+            "longitude": "-43.9333"
+          },
+          "openingHoursSpecification": [
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+              "opens": "08:00",
+              "closes": "20:00"
+            },
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": "Saturday",
+              "opens": "08:00",
+              "closes": "16:00"
+            }
+          ],
+          "sameAs": [
+            "https://instagram.com/nathan_relogios"
+          ]
+        }}
+      />
       {sections.map(s => {
         switch (s.type) {
           case 'hero':              return <HeroSection key={s.id} s={s} />;

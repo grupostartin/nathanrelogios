@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useProduct } from '../hooks/useProduct';
 import { useProducts } from '../hooks/useProducts';
 import { formatPrice } from '../data/products';
+import SEO from '../components/SEO';
 
 function conditionBadgeClass(condition?: string | null): string {
   switch (condition) {
@@ -61,9 +62,79 @@ export default function Product() {
       </div>
     );
   }
+  const seoTitle = `Citizen ${product.name} (Ref: ${product.reference})`;
+  const seoDescription = `${product.description.slice(0, 155)}... Relógio Citizen original ${product.isUsed ? 'seminovo' : 'novo'} em Belo Horizonte com entrega para todo o Brasil.`;
+  const seoKeywords = `citizen ${product.name.toLowerCase()}, citizen ${product.reference.toLowerCase()}, ${product.line.toLowerCase()}, ${product.category.toLowerCase()}, citizen original, comprar citizen ${product.name.toLowerCase()}`;
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": `Citizen ${product.name}`,
+    "image": product.images.map(img =>
+      img.startsWith('http')
+        ? img
+        : `${window.location.origin}${img.startsWith('/') ? '' : '/'}${img}`
+    ),
+    "description": product.description,
+    "sku": product.reference,
+    "mpn": product.reference,
+    "brand": {
+      "@type": "Brand",
+      "name": "Citizen"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": window.location.href,
+      "priceCurrency": "BRL",
+      "price": product.price,
+      "priceValidUntil": "2027-12-31",
+      "itemCondition": product.isUsed
+        ? "https://schema.org/UsedCondition"
+        : "https://schema.org/NewCondition",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "@type": "Store",
+        "name": "Nathan Relógios & Joias"
+      }
+    },
+    "additionalProperty": [
+      {
+        "@type": "PropertyValue",
+        "name": "Linha",
+        "value": product.line
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Mecanismo",
+        "value": product.mechanism
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Material da Caixa",
+        "value": product.caseMaterial
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Pulseira",
+        "value": product.strapMaterial
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Resistência à Água",
+        "value": product.waterResistance
+      }
+    ]
+  };
 
   return (
     <main className="flex flex-col min-h-screen bg-secondary">
+      <SEO
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        image={imageUrl}
+        schema={schema}
+      />
 
       {/* Breadcrumb */}
       <div className="max-w-[1440px] mx-auto px-6 lg:px-16 py-6 w-full flex items-center text-[10px] uppercase font-sans tracking-widest text-gray-medium">
