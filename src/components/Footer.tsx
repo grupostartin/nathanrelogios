@@ -51,10 +51,10 @@ export default function Footer() {
 
           <div className="text-center md:text-right">
             <p className="text-xs text-gray-medium uppercase tracking-wider mb-2">
-              &copy; {new Date().getFullYear()} Citizen Boutique. Nathan Relógios.
+              &copy; {new Date().getFullYear()} Nathan Relógios e Joias LTDA.
             </p>
             <p className="text-[10px] text-gray-light uppercase tracking-[0.1em]">
-              CNPJ: 00.000.000/0001-00
+              CNPJ: 61.331.822/0001-40
             </p>
           </div>
         </div>

@@ -202,10 +202,14 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
               {/* Remove button */}
               <button
                 type="button"
-                onClick={() => remove(idx)}
-                className="absolute top-1.5 right-1.5 z-10 w-6 h-6 bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  remove(idx);
+                }}
+                className="absolute top-1.5 right-1.5 z-10 w-6 h-6 bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-colors shadow-md cursor-pointer"
+                title="Remover imagem"
               >
-                <X className="w-3 h-3" />
+                <X className="w-3.5 h-3.5" />
               </button>
 
               <div className="aspect-square bg-offwhite overflow-hidden">
