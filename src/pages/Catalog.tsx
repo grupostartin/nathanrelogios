@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import ProductCard from '../components/ProductCard';
 import SEO from '../components/SEO';
-import { SlidersHorizontal, Loader2 } from 'lucide-react';
+import { SlidersHorizontal, Loader2, LayoutGrid, List } from 'lucide-react';
 
 export default function Catalog() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -10,6 +10,7 @@ export default function Catalog() {
   const [activeGender, setActiveGender] = useState<string | null>(null);
   const [activeUsed, setActiveUsed] = useState<boolean | null>(null);
   const [sortBy, setSortBy] = useState<string>('recent');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   const { products, loading, error } = useProducts({
     category: activeCategory,
@@ -187,13 +188,48 @@ export default function Catalog() {
                     <option value="price-asc" className="bg-secondary text-primary">Preço: Menor para Maior</option>
                     <option value="price-desc" className="bg-secondary text-primary">Preço: Maior para Menor</option>
                   </select>
+
+                  {/* View Mode Toggle */}
+                  <div className="flex items-center gap-1 ml-2 border border-gray-light rounded-sm overflow-hidden">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      title="Modo grade"
+                      className={`p-1.5 transition-colors ${
+                        viewMode === 'grid'
+                          ? 'bg-primary text-secondary'
+                          : 'text-gray-medium hover:text-primary'
+                      }`}
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      title="Modo lista"
+                      className={`p-1.5 transition-colors ${
+                        viewMode === 'list'
+                          ? 'bg-primary text-secondary'
+                          : 'text-gray-medium hover:text-primary'
+                      }`}
+                    >
+                      <List className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {sortedProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+
+              {viewMode === 'grid' ? (
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+                  {sortedProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {sortedProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} listMode />
+                  ))}
+                </div>
+              )}
             </>
           )}
         </div>

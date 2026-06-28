@@ -15,9 +15,10 @@ function conditionBadgeClass(condition?: string | null): string {
 interface ProductCardProps {
   product: Product;
   key?: string | number;
+  listMode?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, listMode }: ProductCardProps) {
   const imageUrl = product.images?.[0]
     ? (product.images[0].startsWith('http')
         ? product.images[0]
@@ -26,6 +27,74 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const whatsappMessage = `Olá, tenho interesse no relógio Citizen ${product.name} (Ref: ${product.reference}).\n\nFoto do relógio: ${imageUrl}\n\nPoderia me passar mais informações sobre disponibilidade e formas de pagamento?`;
   const whatsappUrl = `https://wa.me/5531986952057?text=${encodeURIComponent(whatsappMessage)}`;
+
+  if (listMode) {
+    return (
+      <div className="group flex flex-row bg-secondary border border-transparent hover:border-gray-light transition-colors duration-300">
+        {/* Image */}
+        <Link to={`/produto/${product.id}`} className="relative shrink-0 w-28 sm:w-40 aspect-[4/5] overflow-hidden bg-offwhite">
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-in-out mix-blend-multiply"
+            loading="lazy"
+          />
+          {(product.isNew || product.isBestseller || product.isUsed || (product.oldPrice && product.oldPrice > product.price)) && (
+            <div className="absolute top-2 left-2 flex flex-col gap-1">
+              {product.isNew && <span className="px-2 py-0.5 bg-primary text-secondary text-[9px] uppercase tracking-widest font-semibold">Novo</span>}
+              {product.isBestseller && <span className="px-2 py-0.5 bg-gold text-secondary text-[9px] uppercase tracking-widest font-semibold">Destaque</span>}
+              {product.oldPrice && product.oldPrice > product.price && (
+                <span className="px-2 py-0.5 bg-red-600 text-white text-[9px] uppercase tracking-widest font-bold">
+                  -{Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}% OFF
+                </span>
+              )}
+              {product.isUsed && (
+                <span className={`px-2 py-0.5 text-[9px] uppercase tracking-widest font-semibold border ${conditionBadgeClass(product.condition)}`}>
+                  {product.condition ?? 'Usado'}
+                </span>
+              )}
+            </div>
+          )}
+        </Link>
+
+        {/* Content */}
+        <div className="flex flex-col flex-grow p-4 justify-between">
+          <div>
+            <span className="label-caps text-gold text-[9px] mb-1 block">{product.category}</span>
+            <Link to={`/produto/${product.id}`} className="hover:opacity-70 transition-opacity">
+              <h3 className="font-serif text-base sm:text-lg tracking-wide mb-1 line-clamp-2">{product.name}</h3>
+            </Link>
+            <span className="font-sans text-[10px] text-gray-medium tracking-widest">{product.reference}</span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-3">
+            <div className="flex flex-col">
+              {product.oldPrice && (
+                <span className="font-sans text-xs text-gray-medium line-through">{formatPrice(product.oldPrice)}</span>
+              )}
+              <span className="font-sans text-base font-medium text-primary">{formatPrice(product.price)}</span>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Link
+                to={`/produto/${product.id}`}
+                className="px-3 py-2 border border-primary text-primary text-[10px] uppercase tracking-widest font-semibold hover:border-gold hover:text-gold transition-colors duration-300 text-center"
+              >
+                Ver Detalhes
+              </Link>
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-2 border border-gold text-gold text-[10px] uppercase tracking-widest font-semibold hover:bg-gold hover:text-secondary transition-colors duration-300 text-center"
+              >
+                WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="group flex flex-col h-full bg-secondary border border-transparent hover:border-gray-light transition-colors duration-300">

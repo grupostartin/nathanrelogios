@@ -499,12 +499,17 @@ function StockSection({ s }: { s: HomeSection; key?: string }) {
             <p className="font-sans text-[10px] text-gray-medium uppercase tracking-[0.25em] mb-10 border-b border-gray-light pb-4">
               {products.length} Peças Disponíveis
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
+            {/* Mobile: show all products */}
+            <div className="md:hidden grid grid-cols-2 gap-4">
+              {products.map(product => <ProductCard key={product.id} product={product} />)}
+            </div>
+            {/* Desktop: paginated */}
+            <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
               {visible.map(product => <ProductCard key={product.id} product={product} />)}
             </div>
             
             {hasMore && (
-              <div className="mt-20 text-center">
+              <div className="hidden md:block mt-20 text-center">
                 <button 
                   onClick={() => setVisibleCount(c => c + PAGE_SIZE)} 
                   className="inline-flex items-center gap-4 border border-primary px-16 py-5 font-sans uppercase text-xs font-bold tracking-[0.25em] hover:bg-primary hover:text-white transition-all duration-500"
