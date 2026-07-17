@@ -5,7 +5,7 @@ interface WhatsAppButtonProps {
   message?: string;
 }
 
-export default function WhatsAppButton({ message = 'Olá, tenho interesse em um relógio Citizen. Poderia me ajudar com os modelos disponíveis e formas de pagamento?' }: WhatsAppButtonProps) {
+export default function WhatsAppButton({ message = 'Olá, tenho interesse em um relógio. Poderia me ajudar com os modelos disponíveis e formas de pagamento?' }: WhatsAppButtonProps) {
   const encodedMessage = encodeURIComponent(message);
   const whatsappUrl = `https://wa.me/5531986952057?text=${encodedMessage}`;
 

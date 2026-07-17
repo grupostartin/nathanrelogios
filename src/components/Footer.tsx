@@ -12,7 +12,7 @@ export default function Footer() {
             </Link>
             <p className="text-gray-medium text-sm leading-relaxed max-w-sm">
               Cada detalhe foi pensado. Cada segundo, medido com exatidão.
-              Vitrine premium para relógios Citizen com atendimento direto via WhatsApp.
+              Vitrine premium de relógios com atendimento direto via WhatsApp.
             </p>
           </div>
 

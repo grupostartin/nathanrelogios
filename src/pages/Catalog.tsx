@@ -46,14 +46,14 @@ export default function Catalog() {
   return (
     <main className="flex flex-col min-h-screen bg-secondary">
       <SEO
-        title="Catálogo Completo de Relógios Citizen"
-        description="Explore nossa coleção premium de relógios Citizen. Modelos novos e seminovos em Belo Horizonte com envio para todo o Brasil. Compre Citizen Aqualand, Eco-Drive, Meia Lua e outros modelos raros."
+        title="Catálogo Completo de Relógios"
+        description="Explore nossa coleção premium de relógios. Modelos novos e seminovos em Belo Horizonte com envio para todo o Brasil. Compre Aqualand, Eco-Drive, Meia Lua e outros modelos raros."
         keywords="comprar relogio citizen, citizen bh, relogios seminovos, citizen aqualand, citizen ecodrive, citizen meia lua"
       />
       <div className="bg-offwhite py-16 border-b border-gray-light text-center px-6">
         <h1 className="font-serif text-4xl md:text-5xl tracking-[0.02em] mb-4">Catálogo de Relógios</h1>
         <p className="font-sans text-gray-medium tracking-wide max-w-2xl mx-auto">
-          Explore nossa seleção exclusiva de relógios Citizen. Da engenharia avançada Eco-Drive ao clássico automático.
+          Explore nossa seleção exclusiva de relógios. Da engenharia avançada Eco-Drive ao clássico automático.
         </p>
       </div>
 

@@ -162,7 +162,7 @@ function HeroSection({ s }: { s: HomeSection; key?: string }) {
 // 2. Trust Bar
 function TrustBar({ s }: { s: HomeSection; key?: string }) {
   const items = s.config?.items || [
-    { icon: 'ShieldCheck', text: 'AUTENTICIDADE CITIZEN 100% GARANTIDA' },
+    { icon: 'ShieldCheck', text: 'AUTENTICIDADE 100% GARANTIDA' },
     { icon: 'CreditCard', text: 'PARCELAMENTO EM ATÉ 12X NO CARTÃO' },
     { icon: 'Award', text: 'SELEÇÃO CURADA DE MODELOS EXCLUSIVOS' }
   ];
@@ -473,7 +473,7 @@ function StockSection({ s }: { s: HomeSection; key?: string }) {
             <span className="label-caps text-gold mb-3 block">{s.label || 'Nathan Relógios'}</span>
             <h2 className="font-serif text-4xl md:text-5xl tracking-tight">{s.title || 'Todo o Estoque'}</h2>
             <p className="font-sans text-gray-medium mt-4 max-w-xl text-sm md:text-base leading-relaxed">
-              Explore nossa seleção completa de modelos Citizen. Relógios novos e seminovos com garantia de autenticidade.
+              Explore nossa seleção completa de relógios. Novos e seminovos com garantia de autenticidade.
             </p>
           </div>
           <Link 
@@ -540,8 +540,8 @@ export default function Home() {
   return (
     <main className="flex flex-col min-h-screen">
       <SEO
-        title="Nathan Relógios & Joias | Especialista Citizen no Brasil"
-        description="Vitrine premium de relógios Citizen originais, novos e seminovos no Brasil. Especialista em Citizen Aqualand, Meia Lua, Eco-Drive e modelos exclusivos com atendimento direto via WhatsApp."
+        title="Nathan Relógios & Joias | Especialista em Relógios no Brasil"
+        description="Vitrine premium de relógios originais, novos e seminovos no Brasil. Especialista em Aqualand, Meia Lua, Eco-Drive e modelos exclusivos com atendimento direto via WhatsApp."
         schema={{
           "@context": "https://schema.org",
           "@type": "Store",

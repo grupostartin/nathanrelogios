@@ -52,7 +52,7 @@ export default function SEO({
     // 2. Set Meta Description & Keywords
     setMetaTag('description', description);
     
-    const defaultKeywords = 'citizen, aqualand, meialua, luacheia, 3020, aquamont, aqua, 3740, relogiodemergulho, professionaldivers, EcoDrive, CitizenEcoDrive, RelogioEsportivo, EstiloMasculino, AcessoriosMasculinos, RelogioAnalogico, DesignAtemporal, RelogioDiver, Precisao, QualidadePremium, nathan relogios';
+    const defaultKeywords = 'aqualand, meialua, luacheia, 3020, aquamont, aqua, 3740, relogiodemergulho, professionaldivers, EcoDrive, RelogioEsportivo, EstiloMasculino, AcessoriosMasculinos, RelogioAnalogico, DesignAtemporal, RelogioDiver, Precisao, QualidadePremium, nathan relogios';
     setMetaTag('keywords', keywords ? `${keywords}, ${defaultKeywords}` : defaultKeywords);
 
     // 3. Open Graph Tags

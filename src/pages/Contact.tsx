@@ -6,13 +6,13 @@ export default function Contact() {
     <main className="flex flex-col min-h-screen bg-secondary">
       <SEO
         title="Fale Conosco | Atendimento WhatsApp"
-        description="Entre em contato com a Nathan Relógios & Joias. Fale direto pelo WhatsApp (31) 98695-2057 para tirar dúvidas, saber preços ou solicitar modelos específicos de Citizen."
+        description="Entre em contato com a Nathan Relógios & Joias. Fale direto pelo WhatsApp (31) 98695-2057 para tirar dúvidas, saber preços ou solicitar modelos específicos de relógios."
         keywords="contato nathan relogios, whatsapp nathan relogios, comprar citizen belo horizonte, telefone nathan relogios"
       />
       <div className="bg-offwhite py-16 border-b border-gray-light text-center px-6">
         <h1 className="font-serif text-4xl md:text-5xl tracking-[0.02em] mb-4">Contato</h1>
         <p className="font-sans text-gray-medium tracking-wide max-w-xl mx-auto">
-          Fale com um especialista e encontre o Citizen ideal para você.
+          Fale com um especialista e encontre o relógio ideal para você.
         </p>
       </div>
 

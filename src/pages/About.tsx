@@ -45,7 +45,7 @@ export default function About() {
     <div className="relative">
       <SEO
         title="Quem Somos | História e Tradição"
-        description="Conheça a trajetória da Nathan Relógios & Joias. Fundada em 2020 a partir da paixão por relógios Citizen, hoje somamos mais de 6 anos de história e 1.000+ clientes satisfeitos no Brasil."
+        description="Conheça a trajetória da Nathan Relógios & Joias. Fundada em 2020 a partir da paixão por relógios, hoje somamos mais de 6 anos de história e 1.000+ clientes satisfeitos no Brasil."
         keywords="historia nathan relogios, sobre nathan relogios, nathan relogios e joias, citizen original brasil"
       />
       {/* Splash Screen */}
@@ -93,7 +93,7 @@ export default function About() {
           <div className="absolute inset-0 w-full h-full">
             <img 
               src="https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=1600&q=80" 
-              alt="Citizen Watch Showcase" 
+              alt="Watch Showcase" 
               className="w-full h-full object-cover opacity-40 scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/80" />
@@ -126,13 +126,13 @@ export default function About() {
             {/* Column 2: Detailed story */}
             <div className="lg:col-span-7 space-y-6 font-sans text-gray-medium text-base md:text-lg leading-relaxed">
               <p className="font-medium text-primary text-lg md:text-xl leading-relaxed">
-                Tudo começou em meados de 2020, com apenas um relógio Citizen de R$200 e uma grande paixão por relógios — principalmente os modelos de mergulho da marca Citizen.
+                Tudo começou em meados de 2020, com apenas um relógio de R$200 e uma grande paixão por relógios — principalmente os modelos de mergulho.
               </p>
               <p>
                 Meu nome é Nathan, fundador da Nathan Relógios e Joias, e desde o início sempre enxerguei os relógios não apenas como acessórios, mas como peças que carregam história, personalidade e exclusividade.
               </p>
               <p>
-                Com dedicação, confiança e muito amor pelo que fazemos, fomos crescendo dia após dia. Ao longo desses 6 anos de relojoaria, já vendemos mais de 1.000 relógios para clientes de todo o Brasil, construindo uma trajetória marcada pela credibilidade e pela paixão pelo universo Citizen.
+                Com dedicação, confiança e muito amor pelo que fazemos, fomos crescendo dia após dia. Ao longo desses 6 anos de relojoaria, já vendemos mais de 1.000 relógios para clientes de todo o Brasil, construindo uma trajetória marcada pela credibilidade e pela paixão pelo universo relojoeiro.
               </p>
               <p>
                 Hoje, saímos de um único relógio para oferecer diversas possibilidades e oportunidades aos nossos clientes, sempre buscando peças especiais, raras e diferenciadas para quem valoriza qualidade e exclusividade.
@@ -179,7 +179,7 @@ export default function About() {
                 </div>
                 <h3 className="font-serif text-2xl text-primary mb-4 uppercase tracking-wide">Visão</h3>
                 <p className="text-sm text-gray-medium leading-relaxed">
-                  Ser reconhecida como uma das principais referências em relógios Citizen e peças exclusivas no Brasil, construindo uma marca sólida, respeitada e lembrada pela credibilidade, paixão pelo segmento e excelência no atendimento.
+                  Ser reconhecida como uma das principais referências em relógios e peças exclusivas no Brasil, construindo uma marca sólida, respeitada e lembrada pela credibilidade, paixão pelo segmento e excelência no atendimento.
                 </p>
               </div>
             </div>
